@@ -1,20 +1,3 @@
-class Simbolo(object):
-    def __init__(self, valor=None):
-        self.valor = valor
-        # tipo 0 terminais tipo 1 nao_terminais
-        if valor in terminais:  # não alterar a condição
-            self.tipo = 0
-        elif valor is None:
-            self.tipo = None
-        else:
-            self.tipo = 1
-
-class Producao(object):
-    # A saida e a entrada serão um vetor simbolos
-    def __init__(self, entrada, saida=[Simbolo('&')]):
-        self.entrada = entrada
-        self.saida = saida
-
 def main():
     print('Construindo a gramática:')
 
@@ -52,17 +35,20 @@ def main():
     #Simbolo
     s = input('Qual será o símbolo inicial? Escolha entre: %s.\n'%string_nao_terminal)
     s = s.strip().replace("'","")
-    simbolo_inicial = Simbolo(s)
+    simbolo_inicial = Simbolo(s.upper())
 
     #Produções
-    print("Agora as produções:\n")
+    print("\nAgora as produções:")
     contador = 1
     p_left = ''
     p_right = ''
     while True:
         sintaxe_error = True
         while sintaxe_error:
-            p_left = input("Produção %i - Lado esquerdo\n")
+            if contador > 1:
+                p_left = input("Produção %i - Lado esquerdo (0 para parar)\n" % contador)
+            else:
+                p_left = input("Produção %i - Lado esquerdo\n" % contador)
             if p_left == "0":
                 break
             p_left = p_left.replace(' ','')
@@ -78,12 +64,12 @@ def main():
             if sintaxe_error is True or um_nao_terminal is False:
                 print("Erro de Sintaxe\n")
                 print("Não esqueça que é preciso que haja pelo menos um não-terminal do lado esquerdo\n"
-                      "E que os simbolos precisam estar entre %s e %s" % (string_nao_terminal,string_terminal))
+                      "E que os simbolos precisam estar entre %s, %s" % (string_nao_terminal,string_terminal))
         if p_left == "0":
             break
         sintaxe_error = True
         while sintaxe_error:
-            p_right = input("Produção %i - Lado direito\n")
+            p_right = input("Produção %i - Lado direito\n" % contador)
             p_right = p_right.replace(' ','')
             sintaxe_error = False
             for letra in p_right:
@@ -102,12 +88,45 @@ def main():
         producoes.append(Producao(simbolos_entrada,simbolos_saida))
         contador += 1
 
-     # Exibir gramática
+    # Exibir gramática
+    string_producoes = ""
+    for producao in producoes:
+        for simbolo in producao.entrada:
+            string_producoes += simbolo.valor
+        string_producoes += "=>"
+        for simbolo in producao.saida:
+            string_producoes += simbolo.valor
+        string_producoes += ", "
+    string_producoes = string_producoes[:-2]
+
+    string_nao_terminal = string_nao_terminal.replace("'","")
+    string_terminal = string_terminal.replace("'","")
+    print("\nGramática resultante:")
+    print("({%s},{%s},{%s},%s)" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
-simbolo_inicial = Simbolo() # Auto explicativo
 producoes = [] # Produções
+
+class Simbolo(object):
+    def __init__(self, valor=None):
+        self.valor = valor
+        # tipo 0 terminais tipo 1 nao_terminais
+        if valor in terminais_default:  # não alterar a condição
+            self.tipo = 0
+        elif valor is None:
+            self.tipo = None
+        else:
+            self.tipo = 1
+
+class Producao(object):
+    # A saida e a entrada serão um vetor simbolos
+    def __init__(self, entrada, saida=[Simbolo('&')]):
+        self.entrada = entrada
+        self.saida = saida
+
+simbolo_inicial = Simbolo() # Auto explicativo
 
 main()
