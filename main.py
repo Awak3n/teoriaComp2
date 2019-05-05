@@ -6,7 +6,7 @@ def main():
     print('Seus simbolos não-terminais são:')
     string_nao_terminal = ''
     for x in range(nr_nao_terminal):
-        terminais.append(Simbolo(nao_terminais_default[x]))
+        nao_terminais.append(Simbolo(nao_terminais_default[x]))
         if x == nr_nao_terminal -1:
             string_nao_terminal += "'" + nao_terminais_default[x] + "'"
         else:
@@ -33,9 +33,14 @@ def main():
     print(string_terminal)
 
     #Simbolo
-    s = input('Qual será o símbolo inicial? Escolha entre: %s.\n'%string_nao_terminal)
-    s = s.strip().replace("'","")
-    simbolo_inicial = Simbolo(s.upper())
+    while(True):
+        s = input('Qual será o símbolo inicial? Escolha entre: %s.\n'%string_nao_terminal)
+        s = s.strip().replace("'","").upper()
+        if s in string_nao_terminal:
+            simbolo_inicial = Simbolo(s)
+            break
+        else:
+            print("O simbolo inicial precisa estar entre os não-terminais determinados")
 
     #Produções
     print("\nAgora as produções:")
@@ -77,7 +82,7 @@ def main():
                     if letra not in terminais_default:
                         sintaxe_error = True
             if sintaxe_error is True:
-                print("Erro de Sintaxe\n")
+                print("Erro de Sintaxe")
                 print("Não esqueça que os simbolos precisam estar entre\n%s e %s" % (string_nao_terminal,string_terminal))
         simbolos_entrada = []
         simbolos_saida = []
@@ -104,11 +109,44 @@ def main():
     print("\nGramática resultante:")
     print("({%s},{%s},{%s},%s)" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
 
+    # Verificar se a gramática é viavel
+    # Passo 1: Ver se as produções abrangem t0do o alfebeto
+    for simbolo_terminal in terminais:
+        abrange_alfabeto = False
+        if simbolo_terminal.valor == '&':
+            abrange_alfabeto = True
+        else:
+            for producao in producoes:
+                for simbolo_saida in producao.saida:
+                    if simbolo_terminal.valor == simbolo_saida.valor:
+                        abrange_alfabeto = True
+        if abrange_alfabeto is False:
+            print("Erro Estrutural")
+            print("Cada simbolo terminal precisa aparecer ao menos uma vez, exceto o |&| se houver")
+            break
+    for simbolo_nao_terminal in nao_terminais:
+        abrange_alfabeto = False
+        if simbolo_nao_terminal.valor == simbolo_inicial.valor:
+            abrange_alfabeto = True
+        else:
+            for producao in producoes:
+                for simbolo_saida in producao.saida:
+                    if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
+                        for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo
+                            for simbolo_entrada in producao2.saida:
+                                if simbolo_nao_terminal.valor == simbolo_entrada.valor:
+                                    abrange_alfabeto = True
+        if abrange_alfabeto is False:
+            print("Erro Estrutural")
+            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções")
+            break
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
 producoes = [] # Produções
+global simbolo_inicial # Auto explicativo
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -126,7 +164,5 @@ class Producao(object):
     def __init__(self, entrada, saida=[Simbolo('&')]):
         self.entrada = entrada
         self.saida = saida
-
-simbolo_inicial = Simbolo() # Auto explicativo
 
 main()
