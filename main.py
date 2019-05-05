@@ -107,7 +107,7 @@ def main():
     string_nao_terminal = string_nao_terminal.replace("'","")
     string_terminal = string_terminal.replace("'","")
     print("\nGramática resultante:")
-    print("({%s},{%s},{%s},%s)" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
+    print("({%s},{%s},{%s},%s)\n" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
 
     # Verificar se a gramática é viavel
     # Passo 1: Ver se as produções abrangem t0do o alfebeto
