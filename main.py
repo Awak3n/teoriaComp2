@@ -33,14 +33,18 @@ def main():
     print(string_terminal)
 
     #Simbolo
-    while(True):
-        s = input('Qual será o símbolo inicial? Escolha entre: %s.\n'%string_nao_terminal)
-        s = s.strip().replace("'","").upper()
-        if s in string_nao_terminal:
-            simbolo_inicial = Simbolo(s)
-            break
-        else:
-            print("O simbolo inicial precisa estar entre os não-terminais determinados")
+    if len(nao_terminais) == 1:
+        print("Seu simbolo inicial será 'A'")
+        simbolo_inicial = Simbolo('A')
+    else:
+        while(True):
+            s = input('Qual será o símbolo inicial? Escolha entre: %s.\n'%string_nao_terminal)
+            s = s.strip().replace("'","").upper()
+            if s in string_nao_terminal:
+                simbolo_inicial = Simbolo(s)
+                break
+            else:
+                print("O simbolo inicial precisa estar entre os não-terminais determinados")
 
     #Produções
     print("\nAgora as produções:")
@@ -129,16 +133,20 @@ def main():
         if simbolo_nao_terminal.valor == simbolo_inicial.valor:
             abrange_alfabeto = True
         else:
+            contador_p1 = 0
+            contador_p2 = 0
             for producao in producoes:
                 for simbolo_saida in producao.saida:
                     if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
-                        for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo
+                        for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo em outra produção
                             for simbolo_entrada in producao2.saida:
-                                if simbolo_nao_terminal.valor == simbolo_entrada.valor:
+                                if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
                                     abrange_alfabeto = True
+                                contador_p2 += 1
+                contador_p1 += 1
         if abrange_alfabeto is False:
             print("Erro Estrutural")
-            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções")
+            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes")
             break
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
