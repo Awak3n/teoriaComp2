@@ -1,8 +1,18 @@
+def getNumber(msg):
+    try:
+        while (True):
+            nr_nao_terminal = int(input(msg))
+            if nr_nao_terminal >= 1 and nr_nao_terminal <= 10:
+                break
+    except:
+        nr_nao_terminal = getNumber(msg)
+    return  nr_nao_terminal
+
 def main():
     print('Construindo a gramática:')
 
     #Não-terminais
-    nr_nao_terminal = int(input('Quantos simbolos não-terminais você deseja?\n'))
+    nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 10)\n')
     print('Seus simbolos não-terminais são:')
     string_nao_terminal = ''
     for x in range(nr_nao_terminal):
@@ -14,7 +24,7 @@ def main():
     print(string_nao_terminal)
 
     #Terminais
-    nr_terminal = int(input('Quantos simbolos terminais você deseja?\n'))
+    nr_terminal = getNumber('Quantos simbolos terminais você deseja?\n')
     resposta = input("Além deles, deseja adicionar também a senteça vazia |&|?\n")
     resposta = resposta.strip().lower()
     print('Seus simbolos terminais são:')
@@ -132,18 +142,27 @@ def main():
         abrange_alfabeto = False
         contador_p1 = 0
         contador_p2 = 0
+        is_a_looping = True
         for producao in producoes:
+            only_terminais = True
             for simbolo_saida in producao.saida:
+                if only_terminais is False or simbolo_saida.tipo == 1: # verifica se há apenas terminais no lado direito dessa produção
+                    only_terminais = False
                 if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
                     for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo em outra produção
                         for simbolo_entrada in producao2.saida:
                             if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
                                 abrange_alfabeto = True
                             contador_p2 += 1
+            if only_terminais is True:
+                is_a_looping = False
             contador_p1 += 1
         if abrange_alfabeto is False:
             print("Erro Estrutural")
-            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes")
+            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes, exceto o simbolo inicial")
+        if is_a_looping is True:
+            print("Erro Estrutural")
+            print("É preciso que pelo menos uma produção tenha o lado direto apenas com símbolos terminais")
         break
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
