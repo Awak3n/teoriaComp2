@@ -130,20 +130,17 @@ def main():
             break
     for simbolo_nao_terminal in nao_terminais:
         abrange_alfabeto = False
-        if simbolo_nao_terminal.valor == simbolo_inicial.valor:
-            abrange_alfabeto = True
-        else:
-            contador_p1 = 0
-            contador_p2 = 0
-            for producao in producoes:
-                for simbolo_saida in producao.saida:
-                    if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
-                        for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo em outra produção
-                            for simbolo_entrada in producao2.saida:
-                                if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
-                                    abrange_alfabeto = True
-                                contador_p2 += 1
-                contador_p1 += 1
+        contador_p1 = 0
+        contador_p2 = 0
+        for producao in producoes:
+            for simbolo_saida in producao.saida:
+                if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
+                    for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo em outra produção
+                        for simbolo_entrada in producao2.saida:
+                            if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
+                                abrange_alfabeto = True
+                            contador_p2 += 1
+            contador_p1 += 1
         if abrange_alfabeto is False:
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes")
