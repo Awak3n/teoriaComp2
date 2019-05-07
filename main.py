@@ -125,6 +125,7 @@ def main():
 
     # Verificar se a gramática é viavel
     # Passo 1: Ver se as produções abrangem t0do o alfebeto
+    # Passo 2: Evitar loopings obvios (quando não há nem sequer uma produção com apenas terminais)
     for simbolo_terminal in terminais:
         abrange_alfabeto = False
         if simbolo_terminal.valor == '&':
@@ -143,6 +144,8 @@ def main():
         contador_p1 = 0
         contador_p2 = 0
         is_a_looping = True
+        if simbolo_nao_terminal.valor == simbolo_inicial.valor: # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
+            abrange_alfabeto = True
         for producao in producoes:
             only_terminais = True
             for simbolo_saida in producao.saida:
