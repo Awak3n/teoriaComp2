@@ -144,7 +144,7 @@ def main():
         if abrange_alfabeto is False:
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes")
-            break
+        break
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J']
