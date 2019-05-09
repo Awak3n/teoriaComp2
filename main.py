@@ -72,18 +72,17 @@ def main():
                 break
             p_left = p_left.replace(' ','')
             sintaxe_error = False
-            #É preciso verificar se há, pelo menos, um não terminal
-            um_nao_terminal = False
-            for letra in p_left:
-                if letra not in nao_terminais_default:
-                    if letra not in terminais_default:
-                        sintaxe_error = True
-                else:
-                    um_nao_terminal = True
-            if sintaxe_error is True or um_nao_terminal is False:
-                print("Erro de Sintaxe\n")
-                print("Não esqueça que é preciso que haja pelo menos um não-terminal do lado esquerdo\n"
-                      "E que os simbolos precisam estar entre %s, %s" % (string_nao_terminal,string_terminal))
+            # um_nao_terminal = False
+            # for letra in p_left:
+            #     if letra not in nao_terminais_default[:nr_nao_terminal]:
+            #         if letra not in terminais_default[:nr_terminal] and letra != '&':
+            #             sintaxe_error = True
+            #     else: #É preciso verificar se há, pelo menos, um não terminal
+            #         um_nao_terminal = True
+            # if sintaxe_error is True or um_nao_terminal is False:
+            #     print("Erro de Sintaxe\n")
+            #     print("Não esqueça que é preciso que haja pelo menos um não-terminal do lado esquerdo\n"
+            #           "E que os simbolos precisam estar entre %s, %s" % (string_nao_terminal,string_terminal))
         if p_left == "0":
             break
         sintaxe_error = True
@@ -91,10 +90,15 @@ def main():
             p_right = input("Produção %i - Lado direito\n" % contador)
             p_right = p_right.replace(' ','')
             sintaxe_error = False
+            if p_right[0] == '|':
+                p_right = p_right[1:]
+            if p_right[-1] == '|':
+                p_right = p_right[:-1]
             for letra in p_right:
-                if letra not in nao_terminais_default:
-                    if letra not in terminais_default:
-                        sintaxe_error = True
+                if letra != '|':
+                    if letra not in nao_terminais_default[:nr_nao_terminal]:
+                        if letra not in terminais_default[:nr_terminal] and letra != '&':
+                            sintaxe_error = True
             if sintaxe_error is True:
                 print("Erro de Sintaxe")
                 print("Não esqueça que os simbolos precisam estar entre\n%s e %s" % (string_nao_terminal,string_terminal))
@@ -102,9 +106,14 @@ def main():
         simbolos_saida = []
         for letra in p_left:
             simbolos_entrada.append(Simbolo(letra))
+        p_right += '|'
         for letra in p_right:
-            simbolos_saida.append(Simbolo(letra))
-        producoes.append(Producao(simbolos_entrada,simbolos_saida))
+            if letra == '|':
+                producoes.append(Producao(simbolos_entrada, simbolos_saida))
+                simbolos_saida = []
+            else:
+                simbolos_saida.append(Simbolo(letra))
+        p_right = p_right[:-1]
         contador += 1
 
     # Exibir gramática
@@ -163,9 +172,6 @@ def main():
         if abrange_alfabeto is False:
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes, exceto o simbolo inicial")
-        if is_a_looping is True:
-            print("Erro Estrutural")
-            print("É preciso que pelo menos uma produção tenha o lado direto apenas com símbolos terminais")
         break
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
