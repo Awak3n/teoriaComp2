@@ -198,6 +198,10 @@ def main():
     # 4. Identificação da Gramática
     ################################
 
+    for terminal in terminais:
+        print(terminal.valor)
+        print(terminal.tipo)
+
     ################################
     # 5. Geração de Sentenças
     ################################
