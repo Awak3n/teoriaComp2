@@ -2,17 +2,21 @@ def getNumber(msg):
     try:
         while (True):
             nr_nao_terminal = int(input(msg))
-            if nr_nao_terminal >= 1 and nr_nao_terminal <= 10:
+            if nr_nao_terminal >= 1 and nr_nao_terminal <= 26:
                 break
     except:
         nr_nao_terminal = getNumber(msg)
     return  nr_nao_terminal
 
 def main():
+    ################################
+    # 1. Entrada de gramática          
+    ################################
+
     print('Construindo a gramática:')
 
     #Não-terminais
-    nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 10)\n')
+    nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 26)\n')
     print('Seus simbolos não-terminais são:')
     string_nao_terminal = ''
     for x in range(nr_nao_terminal):
@@ -25,7 +29,7 @@ def main():
 
     #Terminais
     nr_terminal = getNumber('Quantos simbolos terminais você deseja?\n')
-    resposta = input("Além deles, deseja adicionar também a senteça vazia |&|?\n")
+    resposta = input("A gramática aceita o símbolo vazio |&|?(S/N)\n")
     resposta = resposta.strip().lower()
     print('Seus simbolos terminais são:')
     string_terminal = ''
@@ -116,7 +120,9 @@ def main():
         p_right = p_right[:-1]
         contador += 1
 
-    # Exibir gramática
+    ################################
+    # 2. Exibir gramática          
+    ################################
     string_producoes = ""
     for producao in producoes:
         for simbolo in producao.entrada:
@@ -132,8 +138,10 @@ def main():
     print("\nGramática resultante:")
     print("({%s},{%s},{%s},%s)\n" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
 
-    # Verificar se a gramática é viavel
-    # Passo 1: Ver se as produções abrangem t0do o alfebeto
+    ################################
+    # 3. Verificação da gramática          
+    ################################
+    # Passo 1: Ver se as produções abrangem todo o alfabeto
     # Passo 2: Evitar loopings obvios (quando não há nem sequer uma produção com apenas terminais)
     for simbolo_terminal in terminais:
         abrange_alfabeto = False
@@ -173,13 +181,25 @@ def main():
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes, exceto o simbolo inicial")
         break
+    ################################
+    # 4. Identificação da Gramática
+    ################################
 
-terminais_default = ['a','b','c','d','e','f','g','h','i','j','&']
-nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J']
+    ################################
+    # 5. Geração de Sentenças
+    ################################
+
+
+    ################################
+    # 6. Autômato Finito          
+    ################################
+
+terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
+nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
 producoes = [] # Produções
-global simbolo_inicial # Auto explicativo
+global simbolo_inicial # Símbolo Inicial da Gramática
 
 class Simbolo(object):
     def __init__(self, valor=None):
