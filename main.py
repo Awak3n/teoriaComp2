@@ -8,6 +8,34 @@ def getNumber(msg):
         nr_nao_terminal = getNumber(msg)
     return  nr_nao_terminal
 
+def checkGramatica():
+    #retorna o tipo de gramática (0,1,2,3)
+
+    type3 = True
+    type2 = True
+    type1 = True
+    for producao in producoes:
+        if (len(producao.entrada) > 1 or producao.entrada[0].tipo == 0):
+            type3 = False
+            type2 = False
+        if (len(producao.entrada) > len(producao.saida)):
+            type1 = False
+        if ((len(producao.saida) == 1 and producao.saida[0].tipo == 1) or len(producao.saida) >= 2):
+            if (producao.saida[0].tipo != 0 or producao.saida[1].tipo != 1):
+                type3 = False
+        for simbolo in producao.saida:
+            if simbolo.valor == '&':
+                type2 = False
+                type1 = False
+        
+    if type3:
+        return 3
+    elif type2:
+        return 2
+    elif type1:
+        return 1
+    return 0
+
 def main():
     ################################
     # 1. Entrada de gramática          
@@ -29,7 +57,7 @@ def main():
 
     #Terminais
     nr_terminal = getNumber('Quantos simbolos terminais você deseja?\n')
-    resposta = input("A gramática aceita o símbolo vazio |&|?(S/N)\n")
+    resposta = input("A gramática aceita o símbolo vazio |&|? (S/N)\n")
     resposta = resposta.strip().lower()
     print('Seus simbolos terminais são:')
     string_terminal = ''
@@ -192,10 +220,7 @@ def main():
     # 4. Identificação da Gramática
     ################################
 
-    for terminal in terminais:
-        print(terminal.valor)
-        print(terminal.tipo)
-
+    print(checkGramatica())
     ################################
     # 5. Geração de Sentenças
     ################################
@@ -204,6 +229,8 @@ def main():
     ################################
     # 6. Autômato Finito          
     ################################
+
+
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
