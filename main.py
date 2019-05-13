@@ -130,14 +130,20 @@ def main():
     ################################
     # 2. Exibir gramática          
     ################################
+    vetor_producoes_esquerdo = []
+    vetor_producoes_direito = []
     string_producoes = ""
     for producao in producoes:
-        for simbolo in producao.entrada:
-            string_producoes += simbolo.valor
-        string_producoes += "=>"
-        for simbolo in producao.saida:
-            string_producoes += simbolo.valor
-        string_producoes += ", "
+        vetor_producoes_direito.append(producao.getValorDireito())
+        vetor_producoes_esquerdo.append(producao.getValorEsquerdo())
+    for x in range(len(vetor_producoes_esquerdo)):
+        for y in range(x):
+            if vetor_producoes_esquerdo[x] == vetor_producoes_esquerdo[y] and vetor_producoes_esquerdo[x] != "":
+                vetor_producoes_direito[y] += "|" + vetor_producoes_direito[x]
+                vetor_producoes_esquerdo[x] = ""
+    for x in range(len(vetor_producoes_esquerdo)):
+        if vetor_producoes_esquerdo[x] != "":
+            string_producoes += vetor_producoes_esquerdo[x] +"=>" + vetor_producoes_direito[x] + ", "
     string_producoes = string_producoes[:-2]
 
     string_nao_terminal = string_nao_terminal.replace("'","")
