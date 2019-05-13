@@ -76,17 +76,18 @@ def main():
                 break
             p_left = p_left.replace(' ','')
             sintaxe_error = False
-            # um_nao_terminal = False
-            # for letra in p_left:
-            #     if letra not in nao_terminais_default[:nr_nao_terminal]:
-            #         if letra not in terminais_default[:nr_terminal] and letra != '&':
-            #             sintaxe_error = True
-            #     else: #É preciso verificar se há, pelo menos, um não terminal
-            #         um_nao_terminal = True
-            # if sintaxe_error is True or um_nao_terminal is False:
-            #     print("Erro de Sintaxe\n")
-            #     print("Não esqueça que é preciso que haja pelo menos um não-terminal do lado esquerdo\n"
-            #           "E que os simbolos precisam estar entre %s, %s" % (string_nao_terminal,string_terminal))
+            um_nao_terminal = False
+            for letra in p_left:
+                if letra not in nao_terminais_default[:nr_nao_terminal]:
+                    if letra not in terminais_default[:nr_terminal] and letra != '&':
+                        sintaxe_error = True
+                else: #É preciso verificar se há, pelo menos, um não terminal
+                    um_nao_terminal = True
+            if sintaxe_error is True or um_nao_terminal is False:
+                sintaxe_error = True
+                print("Erro de Sintaxe\n")
+                print("Não esqueça que é preciso que haja pelo menos um não-terminal do lado esquerdo\n"
+                      "E que os simbolos precisam estar entre %s, %s\n" % (string_nao_terminal,string_terminal))
         if p_left == "0":
             break
         sintaxe_error = True
@@ -101,7 +102,7 @@ def main():
             for letra in p_right:
                 if letra != '|':
                     if letra not in nao_terminais_default[:nr_nao_terminal]:
-                        if letra not in terminais_default[:nr_terminal] and letra != '&':
+                        if letra not in string_terminal.replace("'",""):
                             sintaxe_error = True
             if sintaxe_error is True:
                 print("Erro de Sintaxe")
@@ -113,6 +114,12 @@ def main():
         p_right += '|'
         for letra in p_right:
             if letra == '|':
+                if len(simbolos_saida) > 1:
+                    for simbolo in simbolos_saida:
+                        if simbolo.valor == '&':
+                            print("Aviso:")
+                            print("A sentença vazia somente pode ser encontrada sozinha no lado direito, demais simbolos foram ignorados\n")
+                            simbolos_saida = [Simbolo('&')]
                 producoes.append(Producao(simbolos_entrada, simbolos_saida))
                 simbolos_saida = []
             else:
@@ -218,4 +225,15 @@ class Producao(object):
         self.entrada = entrada
         self.saida = saida
 
+    def getValorEsquerdo(self):
+        string = ""
+        for simbolo in self.entrada:
+            string += simbolo.valor
+        return string
+
+    def getValorDireito(self):
+        string = ""
+        for simbolo in self.saida:
+            string += simbolo.valor
+        return string
 main()
