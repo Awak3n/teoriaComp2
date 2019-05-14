@@ -9,32 +9,36 @@ def getNumber(msg):
     return  nr_nao_terminal
 
 def checkGramatica():
-    #retorna o tipo de gramática (0,1,2,3)
-
+    #retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
+    #irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky
     type3 = True
     type2 = True
     type1 = True
     for producao in producoes:
+        #caso possua mais de um símbolo de entrada ou o mesmo seja um T, não pode ser GLC ou GR
         if (len(producao.entrada) > 1 or producao.entrada[0].tipo == 0):
             type3 = False
             type2 = False
+        #caso o tamanho do lado esquerdo seja maior que o lado direito, não pode ser GSC
         if (len(producao.entrada) > len(producao.saida)):
             type1 = False
+        #caso não possua somente um NT ou um NT e um T de produção, não pode ser GR
         if ((len(producao.saida) == 1 and producao.saida[0].tipo == 1) or len(producao.saida) >= 2):
             if (producao.saida[0].tipo != 0 or producao.saida[1].tipo != 1):
                 type3 = False
+        #caso possua símbolo vazio, não pode ser GSC ou GLC
         for simbolo in producao.saida:
             if simbolo.valor == '&':
                 type2 = False
                 type1 = False
-        
+
     if type3:
-        return 3
+        return [3,"Regular"]
     elif type2:
-        return 2
+        return [2,"Livre de Contexto"]
     elif type1:
-        return 1
-    return 0
+        return [1,"Sensível ao Contexto"]
+    return [0,"Irrestrita"]
 
 def main():
     ################################
@@ -167,11 +171,11 @@ def main():
     for x in range(len(vetor_producoes_esquerdo)):
         for y in range(x):
             if vetor_producoes_esquerdo[x] == vetor_producoes_esquerdo[y] and vetor_producoes_esquerdo[x] != "":
-                vetor_producoes_direito[y] += "|" + vetor_producoes_direito[x]
+                vetor_producoes_direito[y] += " | " + vetor_producoes_direito[x]
                 vetor_producoes_esquerdo[x] = ""
     for x in range(len(vetor_producoes_esquerdo)):
         if vetor_producoes_esquerdo[x] != "":
-            string_producoes += vetor_producoes_esquerdo[x] +"=>" + vetor_producoes_direito[x] + ", "
+            string_producoes += vetor_producoes_esquerdo[x] +" => " + vetor_producoes_direito[x] + ", "
     string_producoes = string_producoes[:-2]
 
     string_nao_terminal = string_nao_terminal.replace("'","")
@@ -226,7 +230,8 @@ def main():
     # 4. Identificação da Gramática
     ################################
 
-    print(checkGramatica())
+    tipo_gramatica = checkGramatica()
+    print("E é uma Gramática %s." % tipo_gramatica[1])
     ################################
     # 5. Geração de Sentenças
     ################################
