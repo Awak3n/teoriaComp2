@@ -33,14 +33,14 @@ def checkGramatica():
             if simbolo.valor == '&':
                 type2 = False
                 type1 = False
-
     if type3:
         return [3,"Regular"]
     elif type2:
         return [2,"Livre de Contexto"]
     elif type1:
         return [1,"Sensível ao Contexto"]
-    return [0,"Irrestrita"]
+    else:
+        return [0,"Irrestrita"]
 
 def main():
     ################################
@@ -168,6 +168,7 @@ def main():
     ################################
     # 2. Exibir gramática          
     ################################
+
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
     string_producoes = ""
@@ -211,7 +212,6 @@ def main():
         abrange_alfabeto = False
         contador_p1 = 0
         contador_p2 = 0
-        is_a_looping = True
         if simbolo_nao_terminal.valor == simbolo_inicial.valor: # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
             abrange_alfabeto = True
         for producao in producoes:
@@ -225,8 +225,6 @@ def main():
                             if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
                                 abrange_alfabeto = True
                             contador_p2 += 1
-            if only_terminais is True:
-                is_a_looping = False
             contador_p1 += 1
         if abrange_alfabeto is False:
             print("Erro Estrutural")
@@ -238,9 +236,11 @@ def main():
 
     tipo_gramatica = checkGramatica()
     print("E é uma Gramática %s.\n" % tipo_gramatica[1])
+
     ################################
     # 5. Geração de Sentenças
     ################################
+
     vetor_resultante = [] # vetor com os valores das saidas
     string = simbolo_inicial.valor
     etapas = [string] # etapas pelas quais o simbolo inicial passou
@@ -268,26 +268,54 @@ def main():
             if len(possiveis_producoes) != 0:
                 if len(possiveis_producoes) == 1:
                     string = string.replace(possiveis_producoes[0].getValorEsquerdo(),possiveis_producoes[0].getValorDireito(), 1)
-                    etapas[len(vetor_resultante)] += ", " + string
+                    etapas[len(vetor_resultante)] += " -> " + string
                 else:
                     nr_producao = rng.randint(0,len(possiveis_producoes)-1)
                     string = string.replace(possiveis_producoes[nr_producao].getValorEsquerdo(), possiveis_producoes[nr_producao].getValorDireito(), 1)
-                    etapas[len(vetor_resultante)] += ", " + string
+                    etapas[len(vetor_resultante)] += " -> " + string
             contador_producoes += 1
         contador_tentativas += 1
     contador = 0
-    string_prods = ""
-    print("\nResultados possíveis:")
+    print("Resultados possíveis:")
     for vetor in vetor_resultante:
         contador += 1
         print("Saida %i: %s" % (contador,vetor))
-        print("Etapas %s" % etapas[contador-1])
-
+        print("Etapas: %s" % etapas[contador-1])
+    
     ################################
     # 6. Autômato Finito          
     ################################
 
+    if tipo_gramatica[0] == 0:
+        print("\nA Gramática %s é interpretada por uma Máquina de Turing." % tipo_gramatica[1])
+    elif tipo_gramatica[0] == 1:
+        print("\nA Gramática %s é interpretada por um Autômato linearmente limitado." % tipo_gramatica[1])
+    elif tipo_gramatica[0] == 2:
+        print("\nA Gramática %s é interpretada por um Autômato com pilha." % tipo_gramatica[1])
+    else: 
+        print("\nA Gramática %s é interpretada por um Autômato Finito: " % tipo_gramatica[1])
+        print("{%s} U ø , {%s}, § , %s, ø)" % (string_nao_terminal,string_terminal,simbolo_inicial.valor))
+        # símbolo que indica estado final ø §
+        # exibir ("{%s} U ø , {%s}, § , %s, ø)" % (string_nao_terminal,string_terminal,simbolo_inicial.valor))
+        estados = terminais
+        estados.append(Simbolo('ø'))
+        tabela = []
+        string_terminal = string_terminal.replace(", ","")
+        for producao in producoes:
+            tabela.append(producao.entrada[0].valor)
+            tabela.append(string_terminal.index(producao.saida[0].valor)+1)
+            if(len(producao.saida) == 2):
+                #se possuir um T seguido de um NT, irá para o estado NT
+                tabela.append(producao.saida[1].valor)
+            else:
+                #se possuir apenas um T, irá para o estado final
+                tabela.append('ø')
+            tabela.append('|')
 
+        print("\nOnde § terá a seguinte tabela: ")
+        #TODO embelezar o peru
+        print(tabela)
+        
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
