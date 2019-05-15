@@ -1,3 +1,5 @@
+import random as rng
+
 def getNumber(msg):
     try:
         while (True):
@@ -9,8 +11,8 @@ def getNumber(msg):
     return  nr_nao_terminal
 
 def checkGramatica():
-    #retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
-    #irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky
+    """retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
+    irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky"""
     type3 = True
     type2 = True
     type1 = True
@@ -48,6 +50,7 @@ def main():
     print('Construindo a gramática:')
 
     #Não-terminais
+    #Gera os não-terminais automáticamente
     nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 26)\n')
     print('Seus simbolos não-terminais são:')
     string_nao_terminal = ''
@@ -60,6 +63,7 @@ def main():
     print(string_nao_terminal)
 
     #Terminais
+    # Gera os terminais automáticamente
     nr_terminal = getNumber('Quantos simbolos terminais você deseja?\n')
     resposta = input("A gramática aceita o símbolo vazio |&|? (S/N)\n")
     resposta = resposta.strip().lower()
@@ -79,8 +83,9 @@ def main():
     print(string_terminal)
 
     #Simbolo
+    #Pergunta e valida o simbolo inicial
     if len(nao_terminais) == 1:
-        print("Seu simbolo inicial será 'A'")
+        print("Seu simbolo inicial será 'A'\n")
         simbolo_inicial = Simbolo('A')
     else:
         while(True):
@@ -93,6 +98,7 @@ def main():
                 print("O simbolo inicial precisa estar entre os não-terminais determinados")
 
     #Produções
+    #Input e validação inicial das produções
     print("\nAgora as produções:")
     contador = 1
     p_left = ''
@@ -111,9 +117,9 @@ def main():
             um_nao_terminal = False
             for letra in p_left:
                 if letra not in nao_terminais_default[:nr_nao_terminal]:
-                    if letra not in terminais_default[:nr_terminal] and letra != '&':
+                    if letra not in terminais_default[:nr_terminal] and letra != '&': #verifica se os simbolos escolhidos abrangem o alfabeto
                         sintaxe_error = True
-                else: #É preciso verificar se há, pelo menos, um não terminal
+                else: #É preciso verificar se há, pelo menos, um não terminal no lado esquerdo
                     um_nao_terminal = True
             if sintaxe_error is True or um_nao_terminal is False:
                 sintaxe_error = True
@@ -134,7 +140,7 @@ def main():
             for letra in p_right:
                 if letra != '|':
                     if letra not in nao_terminais_default[:nr_nao_terminal]:
-                        if letra not in string_terminal.replace("'",""):
+                        if letra not in string_terminal.replace("'",""): #verifica se o lado direito abrange o alfabeto
                             sintaxe_error = True
             if sintaxe_error is True:
                 print("Erro de Sintaxe")
@@ -199,7 +205,7 @@ def main():
                         abrange_alfabeto = True
         if abrange_alfabeto is False:
             print("Erro Estrutural")
-            print("Cada simbolo terminal precisa aparecer ao menos uma vez, exceto o |&| se houver")
+            print("Cada simbolo terminal precisa aparecer ao menos uma vez, exceto o |&| se houver\n")
             break
     for simbolo_nao_terminal in nao_terminais:
         abrange_alfabeto = False
@@ -224,18 +230,58 @@ def main():
             contador_p1 += 1
         if abrange_alfabeto is False:
             print("Erro Estrutural")
-            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes, exceto o simbolo inicial")
+            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez em cada lado das produções e em produções diferentes, exceto o simbolo inicial\n")
         break
     ################################
     # 4. Identificação da Gramática
     ################################
 
     tipo_gramatica = checkGramatica()
-    print("E é uma Gramática %s." % tipo_gramatica[1])
+    print("E é uma Gramática %s.\n" % tipo_gramatica[1])
     ################################
     # 5. Geração de Sentenças
     ################################
-
+    vetor_resultante = [] # vetor com os valores das saidas
+    string = simbolo_inicial.valor
+    etapas = [string] # etapas pelas quais o simbolo inicial passou
+    contador_producoes = 0
+    contador_tentativas = 0
+    while len(vetor_resultante) != 3 and contador_tentativas < 100000: #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 100k...
+        possui_nao_terminal = True
+        for letra in string: # verifica se string está com somente não-terminais
+            if letra not in nao_terminais_default:
+                possui_nao_terminal = False
+            else:
+                possui_nao_terminal = True
+                break
+        if possui_nao_terminal is False:
+            if string not in vetor_resultante: # se possui apenas não-terminais e ainda não encontrou um resultado igual...
+                vetor_resultante.append(string) # salva resultado
+                etapas.append(simbolo_inicial.valor)
+            contador_producoes = 0 # reinicia tentativa
+            string = simbolo_inicial.valor
+        while possui_nao_terminal is True and contador_producoes < 30: # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
+            possiveis_producoes = []
+            for producao in producoes:
+                if producao.getValorEsquerdo() in string:
+                    possiveis_producoes.append(producao)
+            if len(possiveis_producoes) != 0:
+                if len(possiveis_producoes) == 1:
+                    string = string.replace(possiveis_producoes[0].getValorEsquerdo(),possiveis_producoes[0].getValorDireito(), 1)
+                    etapas[len(vetor_resultante)] += ", " + string
+                else:
+                    nr_producao = rng.randint(0,len(possiveis_producoes)-1)
+                    string = string.replace(possiveis_producoes[nr_producao].getValorEsquerdo(), possiveis_producoes[nr_producao].getValorDireito(), 1)
+                    etapas[len(vetor_resultante)] += ", " + string
+            contador_producoes += 1
+        contador_tentativas += 1
+    contador = 0
+    string_prods = ""
+    print("\nResultados possíveis:")
+    for vetor in vetor_resultante:
+        contador += 1
+        print("Saida %i: %s" % (contador,vetor))
+        print("Etapas %s" % etapas[contador-1])
 
     ################################
     # 6. Autômato Finito          
@@ -268,12 +314,14 @@ class Producao(object):
         self.saida = saida
 
     def getValorEsquerdo(self):
+        """Retorna o valor esquerdo da produção"""
         string = ""
         for simbolo in self.entrada:
             string += simbolo.valor
         return string
 
     def getValorDireito(self):
+        """Retorna o valor direito da produção"""
         string = ""
         for simbolo in self.saida:
             string += simbolo.valor
