@@ -276,16 +276,17 @@ def main():
                 possui_nao_terminal = True
                 break
         if possui_nao_terminal is False or string == "":
-            # se possui apenas não-terminais e ainda não encontrou um resultado igual...
+            # se possui apenas terminais e ainda não encontrou um resultado igual...
             if string not in vetor_resultante and string != "": 
                 # salva resultado
-                vetor_resultante.append(string) 
+                vetor_resultante.append(string)
                 etapas.append(simbolo_inicial.valor)
+                string = simbolo_inicial.valor
             # reinicia tentativa
             contador_producoes = 0 
             if string == "":
                 etapas[len(vetor_resultante)] = [simbolo_inicial.valor]
-            string = simbolo_inicial.valor
+                string = simbolo_inicial.valor
         # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
         while possui_nao_terminal is True and contador_producoes < 50: 
             possiveis_producoes = []
