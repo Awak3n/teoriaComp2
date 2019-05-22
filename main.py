@@ -1,5 +1,6 @@
 import random as rng
 
+#Pega o número de NT desejados e o converte em 'n' NT
 def getNumber(msg):
     try:
         while (True):
@@ -10,9 +11,10 @@ def getNumber(msg):
         nr_nao_terminal = getNumber(msg)
     return  nr_nao_terminal
 
+
 def checkGramatica():
-    """retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
-    irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky"""
+    #retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
+    #irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky
     type3 = True
     type2 = True
     type1 = True
@@ -105,6 +107,7 @@ def main():
     p_right = ''
     while True:
         sintaxe_error = True
+        #Criando a produção do lado esquerdo
         while sintaxe_error:
             if contador > 1:
                 p_left = input("Produção %i - Lado esquerdo (0 para parar)\n" % contador)
@@ -116,10 +119,12 @@ def main():
             sintaxe_error = False
             um_nao_terminal = False
             for letra in p_left:
+                #verifica se os simbolos escolhidos abrangem o alfabeto
                 if letra not in nao_terminais_default[:nr_nao_terminal]:
-                    if letra not in terminais_default[:nr_terminal] and letra != '&': #verifica se os simbolos escolhidos abrangem o alfabeto
+                    if letra not in terminais_default[:nr_terminal] and letra != '&': 
                         sintaxe_error = True
-                else: #É preciso verificar se há, pelo menos, um não terminal no lado esquerdo
+                #É preciso verificar se há, pelo menos, um não terminal no lado esquerdo
+                else: 
                     um_nao_terminal = True
             if sintaxe_error is True or um_nao_terminal is False:
                 sintaxe_error = True
@@ -129,6 +134,7 @@ def main():
         if p_left == "0":
             break
         sintaxe_error = True
+        # Criando a produção do lado direito
         while sintaxe_error:
             p_right = input("Produção %i - Lado direito\n" % contador)
             p_right = p_right.replace(' ','')
@@ -140,7 +146,8 @@ def main():
             for letra in p_right:
                 if letra != '|':
                     if letra not in nao_terminais_default[:nr_nao_terminal]:
-                        if letra not in string_terminal.replace("'",""): #verifica se o lado direito abrange o alfabeto
+                        #verifica se o lado direito abrange o alfabeto
+                        if letra not in string_terminal.replace("'",""): 
                             sintaxe_error = True
             if sintaxe_error is True:
                 print("Erro de Sintaxe")
@@ -150,10 +157,12 @@ def main():
         for letra in p_left:
             simbolos_entrada.append(Simbolo(letra))
         p_right += '|'
+        #Verifica se o símbolo vazio está presente no lado direito
         for letra in p_right:
             if letra == '|':
                 if len(simbolos_saida) > 1:
                     for simbolo in simbolos_saida:
+                        #caso esteja, remove todos os outros T e NT que a acompanham
                         if simbolo.valor == '&':
                             print("Aviso:")
                             print("A sentença vazia somente pode ser encontrada sozinha no lado direito, demais simbolos foram ignorados\n")
@@ -212,15 +221,19 @@ def main():
         abrange_alfabeto = False
         contador_p1 = 0
         contador_p2 = 0
-        if simbolo_nao_terminal.valor == simbolo_inicial.valor: # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
+        # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
+        if simbolo_nao_terminal.valor == simbolo_inicial.valor: 
             abrange_alfabeto = True
         for producao in producoes:
             only_terminais = True
             for simbolo_saida in producao.saida:
-                if only_terminais is False or simbolo_saida.tipo == 1: # verifica se há apenas terminais no lado direito dessa produção
+                # verifica se há apenas terminais no lado direito dessa produção
+                if only_terminais is False or simbolo_saida.tipo == 1: 
                     only_terminais = False
-                if simbolo_nao_terminal.valor == simbolo_saida.valor: # se achou uma produção do lado direito
-                    for producao2 in producoes: # procura o simbolo em outra produção do lado esquerdo em outra produção
+                # se achou uma produção do lado direito
+                if simbolo_nao_terminal.valor == simbolo_saida.valor: 
+                    # procura o simbolo em outra produção do lado esquerdo em outra produção
+                    for producao2 in producoes: 
                         for simbolo_entrada in producao2.saida:
                             if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
                                 abrange_alfabeto = True
@@ -241,26 +254,34 @@ def main():
     # 5. Geração de Sentenças
     ################################
 
-    vetor_resultante = [] # vetor com os valores das saidas
+    # vetor com os valores das saidas
+    vetor_resultante = [] 
     string = simbolo_inicial.valor
-    etapas = [string] # etapas pelas quais o simbolo inicial passou
+    # etapas pelas quais o simbolo inicial passou
+    etapas = [string] 
     contador_producoes = 0
     contador_tentativas = 0
-    while len(vetor_resultante) != 3 and contador_tentativas < 100000: #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 100k...
+    #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 100k...
+    while len(vetor_resultante) != 3 and contador_tentativas < 100000: 
         possui_nao_terminal = True
-        for letra in string: # verifica se string está com somente não-terminais
+        # verifica se string está com somente não-terminais
+        for letra in string: 
             if letra not in nao_terminais_default:
                 possui_nao_terminal = False
             else:
                 possui_nao_terminal = True
                 break
         if possui_nao_terminal is False:
-            if string not in vetor_resultante: # se possui apenas não-terminais e ainda não encontrou um resultado igual...
-                vetor_resultante.append(string) # salva resultado
+            # se possui apenas não-terminais e ainda não encontrou um resultado igual...
+            if string not in vetor_resultante: 
+                # salva resultado
+                vetor_resultante.append(string) 
                 etapas.append(simbolo_inicial.valor)
-            contador_producoes = 0 # reinicia tentativa
+            # reinicia tentativa
+            contador_producoes = 0 
             string = simbolo_inicial.valor
-        while possui_nao_terminal is True and contador_producoes < 30: # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
+        # enquanto o numero de produções não passou de 30 e possui não-terminais...
+        while possui_nao_terminal is True and contador_producoes < 30: 
             possiveis_producoes = []
             for producao in producoes:
                 if producao.getValorEsquerdo() in string:
@@ -294,28 +315,50 @@ def main():
         print("\nA Gramática %s é interpretada por um Autômato com pilha." % tipo_gramatica[1])
     else: 
         print("\nA Gramática %s é interpretada por um Autômato Finito: " % tipo_gramatica[1])
-        print("{%s} U ø , {%s}, § , %s, ø)" % (string_nao_terminal,string_terminal,simbolo_inicial.valor))
-        # símbolo que indica estado final ø §
-        # exibir ("{%s} U ø , {%s}, § , %s, ø)" % (string_nao_terminal,string_terminal,simbolo_inicial.valor))
-        estados = terminais
-        estados.append(Simbolo('ø'))
-        tabela = []
+        
+        # símbolo que indica estado final q0
+        string_estados = ''
         string_terminal = string_terminal.replace(", ","")
+        string_nao_terminal = string_nao_terminal.replace(", ","")
+        
+        for i in range(0,len(string_nao_terminal)):
+            string_estados += 'q'+str(i+1)+', '
+        string_estados = string_estados[:-2]
+
+        # exibe o autômato finito
+        print("AF: ({%s} U q0 , {%s}, § , %s, q0)" % (string_estados,string_terminal,'q'+str(string_nao_terminal.index(simbolo_inicial.valor)+1)))
+        
+        # estados será um dicionário de estados com um dicionário de transições para cada T
+        estados = {}
+        for char in range(0,len(string_nao_terminal)+1):
+            key = 'q'+str(char)
+            estados[key] = {}
+            for index in range(0,len(string_terminal)):
+                estados[key][string_terminal[index]] = []
+
+        #Cria uma lista com todas as transições de estados
         for producao in producoes:
-            tabela.append(producao.entrada[0].valor)
-            tabela.append(string_terminal.index(producao.saida[0].valor)+1)
+            key = 'q'+str(string_nao_terminal.index(producao.entrada[0].valor)+1)
+            transicao = producao.saida[0].valor
             if(len(producao.saida) == 2):
                 #se possuir um T seguido de um NT, irá para o estado NT
-                tabela.append(producao.saida[1].valor)
+                entry = 'q'+str(string_nao_terminal.index(producao.saida[1].valor)+1)
+                estados[key][transicao].append(entry)
             else:
                 #se possuir apenas um T, irá para o estado final
-                tabela.append('ø')
-            tabela.append('|')
-
-        print("\nOnde § terá a seguinte tabela: ")
-        #TODO embelezar o peru
-        print(tabela)
+                entry = 'q0'
+                estados[key][transicao].append(entry)
         
+        # Exibindo a tabela de transição
+        print("\nOnde § terá a seguinte tabela de transição: ")
+        for key,value in estados.items():
+            if(key == 'q0'):
+                print("Estado final:", key)
+                print("    Finaliza as transições.")
+            else:
+                print("Estado:", key)
+                for k,v in value.items():
+                    print("    Lendo '%s' irá para => %s" % (k,v))
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
