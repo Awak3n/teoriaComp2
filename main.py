@@ -221,13 +221,9 @@ def main():
         abrange_alfabeto = False
         contador_p1 = 0
         contador_p2 = 0
-<<<<<<< HEAD
+        is_a_looping = True
         # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
         if simbolo_nao_terminal.valor == simbolo_inicial.valor: 
-=======
-        is_a_looping = True
-        if simbolo_nao_terminal.valor == simbolo_inicial.valor: # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
->>>>>>> b28a6680b398cc63f5e8b0352ea6f52446b119b6
             abrange_alfabeto = True
         for producao in producoes:
             only_terminais = True
@@ -260,26 +256,17 @@ def main():
     ################################
     # 5. Geração de Sentenças
     ################################
-<<<<<<< HEAD
-
-    # vetor com os valores das saidas
-    vetor_resultante = [] 
-=======
     if is_a_looping:
         print("Há problemas na gramática, corrija-os para que saidas possam ser geradas")
-    vetor_resultante = [] # vetor com os valores das saidas
->>>>>>> b28a6680b398cc63f5e8b0352ea6f52446b119b6
+    # vetor com os valores das saidas
+    vetor_resultante = [] 
     string = simbolo_inicial.valor
     # etapas pelas quais o simbolo inicial passou
     etapas = [string] 
     contador_producoes = 0
     contador_tentativas = 0
-<<<<<<< HEAD
-    #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 100k...
-    while len(vetor_resultante) != 3 and contador_tentativas < 100000: 
-=======
-    while len(vetor_resultante) != 3 and contador_tentativas < 25000: #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 100k...
->>>>>>> b28a6680b398cc63f5e8b0352ea6f52446b119b6
+    #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 25k...
+    while len(vetor_resultante) != 3 and contador_tentativas < 25000: 
         possui_nao_terminal = True
         # verifica se string está com somente não-terminais
         for letra in string: 
@@ -288,29 +275,19 @@ def main():
             else:
                 possui_nao_terminal = True
                 break
-<<<<<<< HEAD
-        if possui_nao_terminal is False:
+        if possui_nao_terminal is False or string == "":
             # se possui apenas não-terminais e ainda não encontrou um resultado igual...
-            if string not in vetor_resultante: 
+            if string not in vetor_resultante and string != "": 
                 # salva resultado
                 vetor_resultante.append(string) 
                 etapas.append(simbolo_inicial.valor)
             # reinicia tentativa
             contador_producoes = 0 
-            string = simbolo_inicial.valor
-        # enquanto o numero de produções não passou de 30 e possui não-terminais...
-        while possui_nao_terminal is True and contador_producoes < 30: 
-=======
-        if possui_nao_terminal is False or string == "":
-            if string not in vetor_resultante and string != "": # se possui apenas não-terminais e ainda não encontrou um resultado igual...
-                vetor_resultante.append(string) # salva resultado
-                etapas.append(simbolo_inicial.valor)
-            contador_producoes = 0 # reinicia tentativa
             if string == "":
                 etapas[len(vetor_resultante)] = [simbolo_inicial.valor]
             string = simbolo_inicial.valor
-        while possui_nao_terminal is True and contador_producoes < 50: # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
->>>>>>> b28a6680b398cc63f5e8b0352ea6f52446b119b6
+        # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
+        while possui_nao_terminal is True and contador_producoes < 50: 
             possiveis_producoes = []
             for producao in producoes:
                 if producao.getValorEsquerdo() in string:
@@ -375,15 +352,9 @@ def main():
 
         #Cria uma lista com todas as transições de estados
         for producao in producoes:
-<<<<<<< HEAD
             key = 'q'+str(string_nao_terminal.index(producao.entrada[0].valor)+1)
             transicao = producao.saida[0].valor
-            if(len(producao.saida) == 2):
-=======
-            tabela.append(producao.entrada[0].valor)
-            tabela.append(string_terminal.index(producao.saida[0].valor)+1)
             if len(producao.saida) == 2:
->>>>>>> b28a6680b398cc63f5e8b0352ea6f52446b119b6
                 #se possuir um T seguido de um NT, irá para o estado NT
                 entry = 'q'+str(string_nao_terminal.index(producao.saida[1].valor)+1)
                 estados[key][transicao].append(entry)
