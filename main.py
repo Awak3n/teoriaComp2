@@ -282,12 +282,11 @@ def main():
                 vetor_resultante.append(string)
                 etapas.append(simbolo_inicial.valor)
                 string = simbolo_inicial.valor
-            # reinicia tentativa
-            contador_producoes = 0 
-            if string == "":
-                etapas[len(vetor_resultante)] = [simbolo_inicial.valor]
+            else:
+                etapas[len(vetor_resultante)] = simbolo_inicial.valor
                 string = simbolo_inicial.valor
-        # enquanto ainda numero de produções não passou de 30 e possui não-termiansi...
+            contador_producoes = 0
+        # enquanto ainda numero de produções não passou de 50 e possui não-terminais...
         while possui_nao_terminal is True and contador_producoes < 50: 
             possiveis_producoes = []
             for producao in producoes:
