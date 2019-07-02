@@ -178,6 +178,8 @@ def main():
     # 2. Exibir gramática          
     ################################
 
+    eLivre()
+
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
     string_producoes = ""
@@ -411,4 +413,22 @@ class Producao(object):
         for simbolo in self.saida:
             string += simbolo.valor
         return string
+
+def eLivre():
+    global producoes
+    tamanho = len(producoes)
+    for producao in producoes:
+        if producao.getValorDireito() == '&':
+            for p in range(tamanho):
+                if producao.getValorEsquerdo() in producoes[p].getValorDireito():
+                    producao_auxiliar = producoes[p]
+                    for simbolo_entrada in producao.entrada:
+                        for simbolo_saida in producoes[p].saida:
+                            if simbolo_entrada.valor == simbolo_saida.valor:
+                                producoes[p].saida.remove(simbolo_saida)
+                    producoes.append(producao_auxiliar)
+            producoes.remove(producao)
+
+
+
 main()
