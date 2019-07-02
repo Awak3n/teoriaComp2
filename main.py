@@ -1,4 +1,5 @@
 import random as rng
+import copy
 
 #Pega o número de NT desejados e o converte em 'n' NT
 def getNumber(msg):
@@ -416,19 +417,19 @@ class Producao(object):
 
 def eLivre():
     global producoes
+    producoes_aux = []
     tamanho = len(producoes)
     for producao in producoes:
         if producao.getValorDireito() == '&':
             for p in range(tamanho):
                 if producao.getValorEsquerdo() in producoes[p].getValorDireito():
-                    producao_auxiliar = producoes[p]
+                    producao_auxiliar =  copy.deepcopy(producoes[p])
+                    producoes_aux.append(producao_auxiliar)
                     for simbolo_entrada in producao.entrada:
                         for simbolo_saida in producoes[p].saida:
                             if simbolo_entrada.valor == simbolo_saida.valor:
                                 producoes[p].saida.remove(simbolo_saida)
-                    producoes.append(producao_auxiliar)
             producoes.remove(producao)
-
-
+    producoes.extend(producoes_aux)
 
 main()
