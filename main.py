@@ -180,6 +180,7 @@ def main():
     ################################
 
     eLivre()
+    remocaoUnitaria()
 
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
@@ -431,5 +432,25 @@ def eLivre():
                                 producoes[p].saida.remove(simbolo_saida)
             producoes.remove(producao)
     producoes.extend(producoes_aux)
+
+def remocaoUnitaria():
+    global producoes
+    valores_nao_terminais = []
+    for simbolo in nao_terminais:
+        valores_nao_terminais.append(simbolo.valor)
+    producoes_semelhantes = []
+    producoes_concluidas = []
+    for producao in producoes:
+        if producao.getValorEsquerdo() in valores_nao_terminais and producao.getValorEsquerdo() not in producoes_concluidas:
+            for prod in producoes:
+                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+                    producoes_semelhantes.append(prod)
+            for prod in producoes:
+                if producao.getValorEsquerdo() == prod.getValorDireito():
+                    for ps in producoes_semelhantes:
+                        producoes.append(Producao(prod.entrada,ps.saida))
+                    producoes.remove(prod)
+            producoes_concluidas.append(producao.getValorEsquerdo())
+        producoes_semelhantes = []
 
 main()
