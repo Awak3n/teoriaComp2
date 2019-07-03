@@ -506,36 +506,39 @@ def remocaoUnitaria():
 
 def fatoracao():
     '''Realiza a fatoração'''
-    global producoes
-    # exemplo 4
+    global producoes, nao_terminais, simbolo_inicial
+    # exemplo 4.1
     terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')],[Simbolo('a'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a')]),Producao([Simbolo('B')],[Simbolo('b')]),Producao([Simbolo('C')],[Simbolo('a'),Simbolo('A')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
     simbolo_inicial = 'C' # Símbolo Inicial da Gramática
-    
-    #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    # for producao in producoes:
-    #     if producao.getValorDireito()[0] in nao_terminais_default:
-    #         producoes_semelhantes = []
-    #         for prod in producoes:
-    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-    #                 producoes_semelhantes.append(prod)
-    #         for ps in producoes_semelhantes:
-    #             saida = copy.deepcopy(producao.saida)
-    #             del(saida[0])
-    #             ps_saida = copy.deepcopy(ps.saida)
-    #             ps_saida.extend(saida)
-    #             producoes.append(Producao(producao.entrada, ps_saida))
-    #         producoes.remove(producao)
-    #depois de pronto podemos finalmente fatorar
-    #quando precisarmos colocar um nao-terminal novo, não adicionar "'" ao mesmo, apenas alocar um novo da lista de
-    #nao-terminais default
+    # exemplo 4.2
+    # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
+    # simbolo_inicial = 'A' # Símbolo Inicial da Gramática
 
     print("\nProduções Iniciais: ", producoes, '\n')    
+    #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
+    for producao in producoes:
+        if producao.getValorDireito()[0] in nao_terminais_default:
+            producoes_semelhantes = []
+            for prod in producoes:
+                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+                    producoes_semelhantes.append(prod)
+            for ps in producoes_semelhantes:
+                saida = copy.deepcopy(producao.saida)
+                del(saida[0])
+                ps_saida = copy.deepcopy(ps.saida)
+                ps_saida.extend(saida)
+                producoes.append(Producao(producao.entrada, ps_saida))
+            producoes.remove(producao)
+    #depois de pronto podemos finalmente fatorar
+
+    print("\nProduções pronta para a fatoração: ", producoes, '\n')    
     
     # procurando produções que possuam ambiguidade
     terminais_found = {} # terminais encontrados para cada símbolo
-
     for simbolo in nao_terminais:
         terminais_found[simbolo] = {}
         for t in terminais:
@@ -545,13 +548,32 @@ def fatoracao():
                 #começa a verificar
                 if producao.saida[0].tipo == 0:
                     terminais_found[simbolo][producao.saida[0].valor]+=1                
-    print(terminais_found)
 
     # removendo ambiguidade e adicionando novos não terminais
     for simbolo in terminais_found:
         for terminal in terminais_found[simbolo]:
             current = terminais_found[simbolo][terminal]
-            print(current)
+            # ambiguidade encontrada
+            if current >= 2:
+                print("Ambiguidade encontrada: Símbolo %s -> Terminal %s" % (simbolo,terminal))
+                producoes.append(Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo, terminal)],[simbolo]))
+    print("\nProduções Resultantes: ", producoes, '\n')
+
+def insereNovoNaoTerminal(producoes, nao_terminais, simbolo, terminal):
+    '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
+    novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
+    nao_terminais.append(novo_simbolo)
+    for producao in producoes:
+        print(producao)
+        if producao.entrada[0].valor == simbolo:
+            for elem in producao.saida:
+                if elem.valor == terminal:
+                    producao.saida.remove(elem)
+    return novo_simbolo
+
+def removeTerminalAmbiguo(simbolo, terminal):
+    '''Remove terminais ambíguos, i guess'''
+
 
 def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
