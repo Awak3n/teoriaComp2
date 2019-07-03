@@ -181,6 +181,7 @@ def main():
 
     eLivre()
     remocaoUnitaria()
+    fatoracao()
 
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
@@ -453,4 +454,10 @@ def remocaoUnitaria():
             producoes_concluidas.append(producao.getValorEsquerdo())
         producoes_semelhantes = []
 
+def fatoracao():
+    global producoes
+    #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
+    
+    #quando precisarmos colocar um nao-terminal novo, não adicionar "'" ao mesmo, apenas alocar um novo da lista de
+    #nao-terminais default
 main()
