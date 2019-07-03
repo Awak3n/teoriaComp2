@@ -457,7 +457,13 @@ def remocaoUnitaria():
 def fatoracao():
     global producoes
     #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    
+    for producao in producoes:
+        if producao.getValorDireito()[0] in nao_terminais_default:
+            producoes_semelhantes = []
+            for prod in producoes:
+                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+                    producoes_semelhantes.append(prod)
+    #depois de pronto podemos finalmente fatorar
     #quando precisarmos colocar um nao-terminal novo, não adicionar "'" ao mesmo, apenas alocar um novo da lista de
     #nao-terminais default
 main()
