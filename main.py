@@ -463,6 +463,13 @@ def fatoracao():
             for prod in producoes:
                 if prod.getValorEsquerdo() == producao.getValorEsquerdo():
                     producoes_semelhantes.append(prod)
+            for ps in producoes_semelhantes:
+                saida = copy.deepcopy(producao.saida)
+                del(saida[0])
+                ps_saida = copy.deepcopy(ps.saida)
+                ps_saida.extend(saida)
+                producoes.append(Producao(producao.entrada, ps_saida))
+            producoes.remove(producao)
     #depois de pronto podemos finalmente fatorar
     #quando precisarmos colocar um nao-terminal novo, não adicionar "'" ao mesmo, apenas alocar um novo da lista de
     #nao-terminais default
