@@ -179,9 +179,7 @@ def main():
     # 2. Exibir gramática          
     ################################
 
-    eLivre()
-    remocaoUnitaria()
-    fatoracao()
+    transformacaoGLC()
 
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
@@ -328,14 +326,10 @@ def main():
 
     if tipo_gramatica[0] == 0:
         print("\nA Gramática %s é interpretada por uma Máquina de Turing." % tipo_gramatica[1])
-        # GLC contendo & pode aparecer aqui
-        transformacaoGLC()
     elif tipo_gramatica[0] == 1:
         print("\nA Gramática %s é interpretada por um Autômato linearmente limitado." % tipo_gramatica[1])
     elif tipo_gramatica[0] == 2:
         print("\nA Gramática %s é interpretada por um Autômato com pilha." % tipo_gramatica[1])
-        # GLC normal aparece aqui
-        transformacaoGLC()
     else: 
         print("\nA Gramática %s é interpretada por um Autômato Finito: " % tipo_gramatica[1])
         
@@ -389,7 +383,7 @@ nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N'
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
 producoes = [] # Produções
-global simbolo_inicial # Símbolo Inicial da Gramática
+simbolo_inicial = None # Símbolo Inicial da Gramática
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -429,40 +423,45 @@ class Producao(object):
 
 
 def transformacaoGLC():
+    '''Método contendo todas as transformações, para debbuging'''
     ################################
     # 7. Transformações em GLC          
     ################################
-    # while True:
-    print("\nTRANSFORMAÇÕES EM GLC")
-    print("0. Sair")
-    print("1. Símbolos Inúteis")
-    print("2. Produções Unitárias")
-    print("3. &-livre")
-    print("4. Fatoração")
-    print("5. Recursão à Esquerda")
-    choice = int(input('\nQual transformação em GLC deseja fazer? Escolha: '))
-    if choice == 0:
-        exit(0)
-    elif choice == 1:
-        removeInuteis()
-    elif choice == 2:
-        remocaoUnitaria()
-    elif choice == 3:
-        eLivre()
-    elif choice == 4:
-        fatoracao()
-    else:
-        recursaoAEsquerda()
-        # input("Pressione enter para continuar...\n")
+    while True:
+        print("\nTRANSFORMAÇÕES EM GLC")
+        print("0. Continuar a execução")
+        print("1. Símbolos Inúteis")
+        print("2. Produções Unitárias")
+        print("3. &-livre")
+        print("4. Fatoração")
+        print("5. Recursão à Esquerda")
+        choice = int(input('\nQual transformação em GLC deseja fazer? Escolha: '))
+        if choice == 1:
+            removeInuteis()
+        elif choice == 2:
+            remocaoUnitaria()
+        elif choice == 3:
+            eLivre()
+        elif choice == 4:
+            fatoracao()
+        elif choice == 5:
+            recursaoAEsquerda()
+        else:
+            break
+        input("Pressione enter para continuar...\n")
 
 def eLivre():
     '''Remove o símbolo vazio &'''
     global producoes
-    # exemplo 3
-    # terminais = [] # Lista de Simbolos terminais
-    # nao_terminais = [] # Lista de Simbolos nao terminais
-    # producoes = [] # Produções
-    # simbolo_inicial # Símbolo Inicial da Gramática
+    # exemplo 2
+    terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'),Simbolo('B')] # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('a'),Simbolo('B')]),Producao([Simbolo('A')],[Simbolo('b'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B'),Simbolo('b')]),Producao([Simbolo('B')],[Simbolo('b'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('&')])] # Produções
+    simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
+    
+    print("\nEntrando na Remoção de & (&-livre)\n")
+
+    print("\nProduções Iniciais: ", producoes, '\n') 
     producoes_aux = []
     tamanho = len(producoes)
     for producao in producoes:
@@ -477,15 +476,19 @@ def eLivre():
                                 producoes[p].saida.remove(simbolo_saida)
             producoes.remove(producao)
     producoes.extend(producoes_aux)
+    print("\nProduções Resultantes: ", producoes, '\n') 
 
 def remocaoUnitaria():
     '''Remove produções unitárias'''
     global producoes
-    # exemplo 2
-    # terminais = [] # Lista de Simbolos terminais
-    # nao_terminais = [] # Lista de Simbolos nao terminais
-    # producoes = [] # Produções
-    # simbolo_inicial # Símbolo Inicial da Gramática
+    # exemplo 3
+    terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'),Simbolo('B')] # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('B')],[Simbolo('b'),Simbolo('B')]), Producao([Simbolo('B')],[Simbolo('A')]), Producao([Simbolo('A')],[Simbolo('a'),Simbolo('A')]), Producao([Simbolo('A')],[Simbolo('a')])] # Produções
+    simbolo_inicial = Simbolo('B') # Símbolo Inicial da Gramática
+    print("\nEntrando na Remoção de Produções Unitárias\n")
+
+    print("\nProduções Iniciais: ", producoes, '\n')    
     valores_nao_terminais = []
     for simbolo in nao_terminais:
         valores_nao_terminais.append(simbolo.valor)
@@ -503,6 +506,7 @@ def remocaoUnitaria():
                     producoes.remove(prod)
             producoes_concluidas.append(producao.getValorEsquerdo())
         producoes_semelhantes = []
+    print("\nProduções Resultantes: ", producoes, '\n')    
 
 def fatoracao():
     '''Realiza a fatoração'''
@@ -511,28 +515,31 @@ def fatoracao():
     terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')],[Simbolo('a'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a')]),Producao([Simbolo('B')],[Simbolo('b')]),Producao([Simbolo('C')],[Simbolo('a'),Simbolo('A')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    simbolo_inicial = 'C' # Símbolo Inicial da Gramática
+    simbolo_inicial = Simbolo('C') # Símbolo Inicial da Gramática
+    
     # exemplo 4.2
     # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
     # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
     # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    # simbolo_inicial = 'A' # Símbolo Inicial da Gramática
+    # simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
+    print("\nEntrando na Fatoração\n")
 
     print("\nProduções Iniciais: ", producoes, '\n')    
+    #não testado
     #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    for producao in producoes:
-        if producao.getValorDireito()[0] in nao_terminais_default:
-            producoes_semelhantes = []
-            for prod in producoes:
-                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-                    producoes_semelhantes.append(prod)
-            for ps in producoes_semelhantes:
-                saida = copy.deepcopy(producao.saida)
-                del(saida[0])
-                ps_saida = copy.deepcopy(ps.saida)
-                ps_saida.extend(saida)
-                producoes.append(Producao(producao.entrada, ps_saida))
-            producoes.remove(producao)
+    # for producao in producoes:
+    #     if producao.getValorDireito()[0] in nao_terminais_default:
+    #         producoes_semelhantes = []
+    #         for prod in producoes:
+    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+    #                 producoes_semelhantes.append(prod)
+    #         for ps in producoes_semelhantes:
+    #             saida = copy.deepcopy(producao.saida)
+    #             del(saida[0])
+    #             ps_saida = copy.deepcopy(ps.saida)
+    #             ps_saida.extend(saida)
+    #             producoes.append(Producao(producao.entrada, ps_saida))
+    #         producoes.remove(producao)
     #depois de pronto podemos finalmente fatorar
 
     print("\nProduções pronta para a fatoração: ", producoes, '\n')    
@@ -553,27 +560,26 @@ def fatoracao():
     for simbolo in terminais_found:
         for terminal in terminais_found[simbolo]:
             current = terminais_found[simbolo][terminal]
-            # ambiguidade encontrada
+            # se ambiguidade for encontrada
             if current >= 2:
                 print("Ambiguidade encontrada: Símbolo %s -> Terminal %s" % (simbolo,terminal))
-                producoes.append(Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo, terminal)],[simbolo]))
+                producoes.append(Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal)],[Simbolo(terminal),simbolo]))
     print("\nProduções Resultantes: ", producoes, '\n')
 
-def insereNovoNaoTerminal(producoes, nao_terminais, simbolo, terminal):
+def insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal):
     '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
     novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
     nao_terminais.append(novo_simbolo)
     for producao in producoes:
-        print(producao)
-        if producao.entrada[0].valor == simbolo:
+        if producao.entrada[0].valor == simbolo.valor:
+            if producao.entrada[0].valor == simbolo_inicial.valor:
+                simbolo_inicial.valor = novo_simbolo.valor
             for elem in producao.saida:
                 if elem.valor == terminal:
                     producao.saida.remove(elem)
+            if len(producao.saida) == 0:
+                producao.saida.append(Simbolo('&'))
     return novo_simbolo
-
-def removeTerminalAmbiguo(simbolo, terminal):
-    '''Remove terminais ambíguos, i guess'''
-
 
 def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
@@ -583,19 +589,24 @@ def recursaoAEsquerda():
     nao_terminais = [Simbolo('A'),Simbolo('B')] # Lista de Simbolos nao terminais
     producoes = [Producao(['A'],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('c'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a')]),Producao(['B'],['Aa'])] # Produções
     simbolo_inicial = 'B' # Símbolo Inicial da Gramática
+    
+    print("\nEntrando na Remoção de Recursão à Esquerda\n")
+
     # temporário
     print("\nProduções Iniciais: ", producoes, '\n')
     print("Recursão encontrada: [B] -> [b, A]")
-    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]")
+    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")
     
 def removeInuteis():
     '''Remove símbolos inúteis'''
-    global producoes
+    global producoes, simbolo_inicial
     # exemplo 1
     terminais = [Simbolo('a'),Simbolo('b'),Simbolo('c'),Simbolo('d')] # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C'),Simbolo('D'),Simbolo('E')] # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')],[Simbolo('a')]),Producao([Simbolo('A')],[Simbolo('b'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('b')]),Producao([Simbolo('B')],[Simbolo('d'),Simbolo('D')]),Producao([Simbolo('C')],[Simbolo('c'),Simbolo('C')]),Producao([Simbolo('C')],[Simbolo('c')]),Producao([Simbolo('D')],[Simbolo('d'),Simbolo('D')]),Producao([Simbolo('E')],[Simbolo('a'),Simbolo('A')])] # Produções
-    simbolo_inicial = 'E' # Símbolo Inicial da Gramática
+    simbolo_inicial = Simbolo('E') # Símbolo Inicial da Gramática
+
+    print("\nEntrando na Remoção de Símbolos Inúteis\n")
 
     #encontrando ferteis
     ferteis = []
@@ -627,7 +638,7 @@ def removeInuteis():
     print("Produções sem símbolos inúteis: ", producoes,'\n')
     
     # encontrando símbolos alcançáveis
-    alcancavel = [simbolo_inicial]
+    alcancavel = [simbolo_inicial.valor]
     findAlcancavel(simbolo_inicial,alcancavel)
     print("Símbolos alcançáveis: ", alcancavel)
 
@@ -635,14 +646,14 @@ def removeInuteis():
     removeInalcancavel(producoes, alcancavel)
     print("Produções sem símbolos inalcançáveis: ", producoes,'\n')
 
-def findAlcancavel(bounty,alcancavel):
+def findAlcancavel(simb,alcancavel):
     '''Função recursiva que busca todos os símbolos alcançáveis'''
     for producao in producoes:
-        if producao.entrada[0].valor == bounty:
+        if producao.entrada[0].valor == simb.valor:
             for simbolo in producao.saida:
                 if simbolo.tipo == 1 and simbolo.valor not in alcancavel:
                     alcancavel.append(simbolo.valor)
-                    findAlcancavel(simbolo.valor,alcancavel)
+                    findAlcancavel(simbolo,alcancavel)
 
 def removeInalcancavel(producoes, alcancavel):
     for producao in producoes:
