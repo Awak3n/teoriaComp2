@@ -741,7 +741,7 @@ def derivaVazio(simbolo):
     for producao in producoes:
         if producao.entrada[0] == simbolo:
             if producao.saida[0] == '&':
-                deriva = True;
+                deriva = True
     return deriva
 # Para executar o programa com uma gramática própria, basta descomentar a main, comentar a transformacaoGLC
 # e comentar os exemplos em cada função (idetificados por "exemplo 'n'")
