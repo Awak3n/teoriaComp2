@@ -398,6 +398,13 @@ class Simbolo(object):
     def __repr__(self):
         return self.valor
 
+class First(object):
+    def __init__(self, nao_terminal, valor):
+        self.nao_terminal = nao_terminal
+        self.valor = valor #valor é um vetor de simbolos terminais
+    def __repr__(self):
+        return self.nao_terminal, self.valor
+
 class Producao(object):
     # A saida e a entrada serão um vetor simbolos
     def __init__(self, entrada, saida=[Simbolo('&')]):
@@ -660,8 +667,45 @@ def removeInalcancavel(producoes, alcancavel):
         if producao.entrada[0].valor not in alcancavel:
             producoes.remove(producao)
             return  removeInalcancavel(producoes, alcancavel)
-            
+
+firsts = [] # pra facilitar precisa ser uma variavel global
+
+def getAllFirst(nao_terminais, terminais, producoes):
+    '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
+    for nao_terminal in nao_terminais:
+        getFirstByNaoTerminal(nao_terminais, terminais, producoes, nao_terminal)
+
+def firstRecursivo(nao_terminais, terminais, producoes, posicao_da_producao, producao, resultado):
+    """Caso o Nao Terminal tenha um nao terminal como first calcula o first do nao terminal"""
+    temVazio = None
+    for first in firsts:
+        if producao.saida[posicao_da_producao] == first.nao_terminal:
+            temVazio = False
+            for producao_first in first.valor:
+                if producao_first.valor == '&':
+                    temVazio = True
+            if not temVazio:
+                resultado.extend(first.valor)
+            else:
+                firstRecursivo(nao_terminais, terminais, producoes, posicao_da_producao+1, producao, first)
+    if temVazio is None:
+        getFirstByNaoTerminal(nao_terminais, terminais, producoes, producao.saida[posicao_da_producao])
+        firstRecursivo(nao_terminais, terminais, producoes, posicao_da_producao, producao, resultado)
+    return resultado
+
+def getFirstByNaoTerminal(nao_terminais, terminais, producoes, nao_terminal):
+    """Obtem o fisrt com base no nao terminal passado como parametro"""
+    first = []
+    for producao in producoes:
+        if producao.entrada[0].valor == nao_terminal.valor:
+            if producao.saida[0] in terminais:
+                first.append(producao.saida[0])
+            elif producao.saida[0] in nao_terminais:
+                first = firstRecursivo(nao_terminais, terminais, producoes, 0, producao, first)
+    firsts.append(First(nao_terminal, first))
+    return first
 # Para executar o programa com uma gramática própria, basta descomentar a main, comentar a transformacaoGLC
 # e comentar os exemplos em cada função (idetificados por "exemplo 'n'")
 #main()
-transformacaoGLC()
+#transformacaoGLC()
+#getAllFirst(nao_terminais, terminais, producoes)
