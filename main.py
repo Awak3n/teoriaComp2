@@ -554,7 +554,6 @@ def recursaoAEsquerda():
 
 def getAllFirst():
     '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
-    global nao_terminais
     for nao_terminal in nao_terminais:
         getFirstByNaoTerminal(nao_terminal)
 
@@ -581,7 +580,7 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
 
 def getFirstByNaoTerminal(nao_terminal):
     """Obtem o fisrt com base no nao terminal passado como parametro"""
-    global producoes, nao_terminais, terminais, firsts
+    global firsts
     first = []
     for producao in producoes:
         if producao.entrada[0].valor == nao_terminal.valor:
@@ -599,13 +598,13 @@ def getFirstByNaoTerminal(nao_terminal):
 
 
 def getAllFollow():
-    '''Faz as chamadas de funções para calcular os follows de todos os nao terminais'''
-    global producoes, nao_terminais, terminais, follows, firsts, nao_terminais_string_list, terminais_string_list
+    """Faz as chamadas de funções para calcular os follows de todos os nao terminais"""
+    global follows
     cont = 0
     follow = []
     for nao_terminal in nao_terminais:
         if cont == 0:
-            FirstOrFollow(nao_terminal, [Simbolo('$')])
+            follow.append(Simbolo('$'))
         for producao in producoes:
             if nao_terminal in producao.saida:
                 for simbolo in range(len(producao.saida)):
@@ -667,7 +666,7 @@ class FirstOrFollow(object):
         self.nao_terminal = nao_terminal
         self.valor = valor #valor é um vetor de simbolos terminais
     def __repr__(self):
-        return str(self.nao_terminal) + str(self.valor)
+        return str(self.nao_terminal) + " -> " + str(self.valor)
 
 class Producao(object):
     # A saida e a entrada serão um vetor simbolos
@@ -706,7 +705,9 @@ def mainTeste():
     simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     getAllFirst()
     getAllFollow()
+    print("Fists:")
     print(firsts)
+    print("Follows:")
     print(follows)
 
 #main()
