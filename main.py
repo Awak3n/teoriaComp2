@@ -655,7 +655,7 @@ class FirstOrFollow(object):
         self.nao_terminal = nao_terminal
         self.valor = valor #valor é um vetor de simbolos terminais
     def __repr__(self):
-        return self.nao_terminal, self.valor
+        return str(self.nao_terminal) + str(self.valor)
 
 class Producao(object):
     # A saida e a entrada serão um vetor simbolos
