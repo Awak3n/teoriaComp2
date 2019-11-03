@@ -533,7 +533,7 @@ def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
     global producoes
     # exemplo 5
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
+"""    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
     producoes = [Producao(['A'], [Simbolo('B'), Simbolo('b')]), Producao([Simbolo('A')], [Simbolo('c'), Simbolo('A')]),
                  Producao([Simbolo('A')], [Simbolo('a')]), Producao(['B'], ['Aa'])]  # Produções
@@ -544,17 +544,19 @@ def recursaoAEsquerda():
     # temporário
     print("\nProduções Iniciais: ", producoes, '\n')
     print("Recursão encontrada: [B] -> [b, A]")
-    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")
+    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")"""
 
 
 def getAllFirst():
     '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
+    global nao_terminais
     for nao_terminal in nao_terminais:
         getFirstByNaoTerminal(nao_terminal)
 
 
 def firstRecursivo(posicao_da_producao, producao, resultado):
     """Caso o Nao Terminal tenha um nao terminal como first calcula o first do nao terminal"""
+    global firsts
     temVazio = None
     for first in firsts:
         if producao.saida[posicao_da_producao] == first.nao_terminal:
@@ -574,6 +576,7 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
 
 def getFirstByNaoTerminal(nao_terminal):
     """Obtem o fisrt com base no nao terminal passado como parametro"""
+    global producoes, nao_terminais, terminais, firsts
     first = []
     for producao in producoes:
         if producao.entrada[0].valor == nao_terminal.valor:
@@ -587,6 +590,7 @@ def getFirstByNaoTerminal(nao_terminal):
 
 def getAllFollow():
     '''Faz as chamadas de funções para calcular os follows de todos os nao terminais'''
+    global producoes, nao_terminais, terminais, follows, firsts
     cont = 0
     follow = []
     for nao_terminal in nao_terminais:
@@ -616,6 +620,7 @@ def getAllFollow():
         cont += 1
 
 def derivaVazio(simbolo):
+    global producoes
     deriva = False
     for producao in producoes:
         if producao.entrada[0] == simbolo:
