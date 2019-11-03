@@ -535,9 +535,9 @@ def recursaoAEsquerda():
     # exemplo 5
 """    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    producoes = [Producao(['A'], [Simbolo('B'), Simbolo('b')]), Producao([Simbolo('A')], [Simbolo('c'), Simbolo('A')]),
-                 Producao([Simbolo('A')], [Simbolo('a')]), Producao(['B'], ['Aa'])]  # Produções
-    simbolo_inicial = 'B'  # Símbolo Inicial da Gramática
+    producoes = [Producao([Simbolo('A')], [Simbolo('B'), Simbolo('b')]), Producao([Simbolo('A')], [Simbolo('c'), Simbolo('A')]),
+                 Producao([Simbolo('A')], [Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('A'), Simbolo('b')])]  # Produções
+    simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
 
     print("\nEntrando na Remoção de Recursão à Esquerda\n")
 
@@ -680,7 +680,19 @@ class Producao(object):
     def __repr__(self):
          return str(self.entrada)+' -> '+str(self.saida)
 
-main()
-#transformacaoGLC()
+def mainTeste():
+    global terminais, nao_terminais, producoes, simbolo_inicial
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('c'), Simbolo('C'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    getAllFirst()
+    getAllFollow()
+    print(firsts)
+    print(follows)
+
+#main()
+mainTeste() # função usada para testar first, follow e outras coisas. Preenche as variaveis sem uso da interface
 #getAllFirst()
 #getAllFollow()
