@@ -85,6 +85,11 @@ def main():
             string_terminal += "'" + terminais_default[x] + "', "
     print(string_terminal)
 
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+
     #Simbolo
     #Pergunta e valida o simbolo inicial
     if len(nao_terminais) == 1:
@@ -580,17 +585,22 @@ def getFirstByNaoTerminal(nao_terminal):
     first = []
     for producao in producoes:
         if producao.entrada[0].valor == nao_terminal.valor:
-            if producao.saida[0] in terminais:
+            if producao.saida[0].valor in terminais_string_list:
                 first.append(producao.saida[0])
-            elif producao.saida[0] in nao_terminais:
+            elif producao.saida[0].valor in nao_terminais_string_list:
                 first = firstRecursivo(0, producao, first)
-    firsts.append(FirstOrFollow(nao_terminal, first))
+    jaFoiAdiconado = False
+    for f in firsts:
+        if nao_terminal.valor == f.nao_terminal.valor:
+            jaFoiAdiconado = True
+    if not jaFoiAdiconado:
+        firsts.append(FirstOrFollow(nao_terminal, first))
     return first
 
 
 def getAllFollow():
     '''Faz as chamadas de funções para calcular os follows de todos os nao terminais'''
-    global producoes, nao_terminais, terminais, follows, firsts
+    global producoes, nao_terminais, terminais, follows, firsts, nao_terminais_string_list, terminais_string_list
     cont = 0
     follow = []
     for nao_terminal in nao_terminais:
@@ -632,6 +642,8 @@ terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o'
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
+nao_terminais_string_list = []
+terminais_string_list = []
 producoes = [] # Produções
 simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
@@ -686,6 +698,11 @@ def mainTeste():
     nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('c'), Simbolo('C'), Simbolo('B')]),
                  Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+
     simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     getAllFirst()
     getAllFollow()
