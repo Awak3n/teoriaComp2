@@ -378,6 +378,251 @@ def main():
                     print("    Lendo '%s' irá para => %s" % (k,v))
 
 
+def transformacaoGLC():
+    '''Método contendo todas as transformações, para debbuging'''
+    fatoracao()
+    recursaoAEsquerda()
+
+def eLivre():
+    '''Remove o símbolo vazio &'''
+    global producoes
+    # exemplo 2
+    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B')]),
+                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('a'), Simbolo('B')]),
+                 Producao([Simbolo('A')], [Simbolo('b'), Simbolo('A')]),
+                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B'), Simbolo('b')]),
+                 Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('&')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+
+    print("\nEntrando na Remoção de & (&-livre)\n")
+
+    print("\nProduções Iniciais: ", producoes, '\n')
+    producoes_aux = []
+    tamanho = len(producoes)
+    for producao in producoes:
+        if producao.getValorDireito() == '&':
+            for p in range(tamanho):
+                if producao.getValorEsquerdo() in producoes[p].getValorDireito():
+                    producao_auxiliar = copy.deepcopy(producoes[p])
+                    producoes_aux.append(producao_auxiliar)
+                    for simbolo_entrada in producao.entrada:
+                        for simbolo_saida in producoes[p].saida:
+                            if simbolo_entrada.valor == simbolo_saida.valor:
+                                producoes[p].saida.remove(simbolo_saida)
+            producoes.remove(producao)
+    producoes.extend(producoes_aux)
+    print("\nProduções Resultantes: ", producoes, '\n')
+
+
+def remocaoUnitaria():
+    '''Remove produções unitárias'''
+    global producoes
+    # exemplo 3
+    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('A')]),
+                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]),
+                 Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
+    print("\nEntrando na Remoção de Produções Unitárias\n")
+
+    print("\nProduções Iniciais: ", producoes, '\n')
+    valores_nao_terminais = []
+    for simbolo in nao_terminais:
+        valores_nao_terminais.append(simbolo.valor)
+    producoes_semelhantes = []
+    producoes_concluidas = []
+    for producao in producoes:
+        if producao.getValorEsquerdo() in valores_nao_terminais and producao.getValorEsquerdo() not in producoes_concluidas:
+            for prod in producoes:
+                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+                    producoes_semelhantes.append(prod)
+            for prod in producoes:
+                if producao.getValorEsquerdo() == prod.getValorDireito():
+                    for ps in producoes_semelhantes:
+                        producoes.append(Producao(prod.entrada, ps.saida))
+                    producoes.remove(prod)
+            producoes_concluidas.append(producao.getValorEsquerdo())
+        producoes_semelhantes = []
+    print("\nProduções Resultantes: ", producoes, '\n')
+
+
+def fatoracao():
+    '''Realiza a fatoração'''
+    global producoes, nao_terminais, simbolo_inicial
+    # exemplo 4.1
+    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')]),
+                 Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a'), Simbolo('A')]),
+                 Producao([Simbolo('C')], [Simbolo('a'), Simbolo('B')])]  # Produções
+    simbolo_inicial = Simbolo('C')  # Símbolo Inicial da Gramática
+
+    # exemplo 4.2
+    # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
+    # simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
+    print("\nEntrando na Fatoração\n")
+
+    print("\nProduções Iniciais: ", producoes, '\n')
+    # não testado
+    # primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
+    # for producao in producoes:
+    #     if producao.getValorDireito()[0] in nao_terminais_default:
+    #         producoes_semelhantes = []
+    #         for prod in producoes:
+    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
+    #                 producoes_semelhantes.append(prod)
+    #         for ps in producoes_semelhantes:
+    #             saida = copy.deepcopy(producao.saida)
+    #             del(saida[0])
+    #             ps_saida = copy.deepcopy(ps.saida)
+    #             ps_saida.extend(saida)
+    #             producoes.append(Producao(producao.entrada, ps_saida))
+    #         producoes.remove(producao)
+    # depois de pronto podemos finalmente fatorar
+
+    print("\nProduções pronta para a fatoração: ", producoes, '\n')
+
+    # procurando produções que possuam ambiguidade
+    terminais_found = {}  # terminais encontrados para cada símbolo
+    for simbolo in nao_terminais:
+        terminais_found[simbolo] = {}
+        for t in terminais:
+            terminais_found[simbolo][t.valor] = 0
+        for producao in producoes:
+            if producao.entrada[0].valor == simbolo.valor:
+                # começa a verificar
+                if producao.saida[0].tipo == 0:
+                    terminais_found[simbolo][producao.saida[0].valor] += 1
+
+                    # removendo ambiguidade e adicionando novos não terminais
+    for simbolo in terminais_found:
+        for terminal in terminais_found[simbolo]:
+            current = terminais_found[simbolo][terminal]
+            # se ambiguidade for encontrada
+            if current >= 2:
+                print("Ambiguidade encontrada: Símbolo %s -> Terminal %s" % (simbolo, terminal))
+                producoes.append(
+                    Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal)],
+                             [Simbolo(terminal), simbolo]))
+    print("\nProduções Resultantes: ", producoes, '\n')
+
+
+def insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal):
+    '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
+    novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
+    nao_terminais.append(novo_simbolo)
+    for producao in producoes:
+        if producao.entrada[0].valor == simbolo.valor:
+            if producao.entrada[0].valor == simbolo_inicial.valor:
+                simbolo_inicial.valor = novo_simbolo.valor
+            for elem in producao.saida:
+                if elem.valor == terminal:
+                    producao.saida.remove(elem)
+            if len(producao.saida) == 0:
+                producao.saida.append(Simbolo('&'))
+    return novo_simbolo
+
+
+def recursaoAEsquerda():
+    '''Remove recursão geral à esquerda'''
+    global producoes
+    # exemplo 5
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
+    producoes = [Producao(['A'], [Simbolo('B'), Simbolo('b')]), Producao([Simbolo('A')], [Simbolo('c'), Simbolo('A')]),
+                 Producao([Simbolo('A')], [Simbolo('a')]), Producao(['B'], ['Aa'])]  # Produções
+    simbolo_inicial = 'B'  # Símbolo Inicial da Gramática
+
+    print("\nEntrando na Remoção de Recursão à Esquerda\n")
+
+    # temporário
+    print("\nProduções Iniciais: ", producoes, '\n')
+    print("Recursão encontrada: [B] -> [b, A]")
+    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")
+
+
+def getAllFirst():
+    '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
+    for nao_terminal in nao_terminais:
+        getFirstByNaoTerminal(nao_terminal)
+
+
+def firstRecursivo(posicao_da_producao, producao, resultado):
+    """Caso o Nao Terminal tenha um nao terminal como first calcula o first do nao terminal"""
+    temVazio = None
+    for first in firsts:
+        if producao.saida[posicao_da_producao] == first.nao_terminal:
+            temVazio = False
+            for producao_first in first.valor:
+                if producao_first.valor == '&':
+                    temVazio = True
+            if not temVazio:
+                resultado.extend(first.valor)
+            else:
+                firstRecursivo(posicao_da_producao + 1, producao, first)
+    if temVazio is None:
+        getFirstByNaoTerminal(producao.saida[posicao_da_producao])
+        firstRecursivo(posicao_da_producao, producao, resultado)
+    return resultado
+
+
+def getFirstByNaoTerminal(nao_terminal):
+    """Obtem o fisrt com base no nao terminal passado como parametro"""
+    first = []
+    for producao in producoes:
+        if producao.entrada[0].valor == nao_terminal.valor:
+            if producao.saida[0] in terminais:
+                first.append(producao.saida[0])
+            elif producao.saida[0] in nao_terminais:
+                first = firstRecursivo(0, producao, first)
+    firsts.append(FirstOrFollow(nao_terminal, first))
+    return first
+
+
+def getAllFollow():
+    '''Faz as chamadas de funções para calcular os follows de todos os nao terminais'''
+    cont = 0
+    follow = []
+    for nao_terminal in nao_terminais:
+        if cont == 0:
+            FirstOrFollow(nao_terminal, [Simbolo('$')])
+        for producao in producoes:
+            if nao_terminal in producao.saida:
+                for simbolo in range(len(producao.saida)):
+                    if producao.saida[simbolo] == nao_terminal:
+                        if simbolo + 1 == len(producao.saida):
+                            for f in follows:
+                                if producao.entrada[0] == f.nao_terminal:
+                                    follow.extend(f.valor)
+                        else:
+                            if producao.saida[simbolo + 1] in terminais:
+                                follow.append(producao.saida[simbolo + 1])
+                            elif producao.saida[simbolo + 1] in nao_terminais:
+                                if derivaVazio(producao.saida[simbolo + 1]):
+                                    for f in follows:
+                                        if producao.entrada[0] == f.nao_terminal:
+                                            follow.extend(f.valor)
+                                else:
+                                    for f in firsts:
+                                        if producao.saida[simbolo + 1] == f.nao_terminal:
+                                            follow.extend(f.valor)
+        follows.append(FirstOrFollow(nao_terminal, follow))
+        cont += 1
+
+def derivaVazio(simbolo):
+    deriva = False
+    for producao in producoes:
+        if producao.entrada[0] == simbolo:
+            if producao.saida[0] == '&':
+                deriva = True
+    return deriva
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 terminais = [] # Lista de Simbolos terminais
@@ -385,7 +630,7 @@ nao_terminais = [] # Lista de Simbolos nao terminais
 producoes = [] # Produções
 simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
-follows = [] # Follow
+follows = [] # Follows
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -430,169 +675,6 @@ class Producao(object):
     def __repr__(self):
          return str(self.entrada)+' -> '+str(self.saida)
 
-def fatoracao():
-    '''Realiza a fatoração'''
-    global producoes, nao_terminais, simbolo_inicial
-    # exemplo 4.1
-    terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')],[Simbolo('a'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a')]),Producao([Simbolo('B')],[Simbolo('b')]),Producao([Simbolo('C')],[Simbolo('a'),Simbolo('A')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    simbolo_inicial = Simbolo('C') # Símbolo Inicial da Gramática
-    
-    # exemplo 4.2
-    # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    # simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
-    print("\nEntrando na Fatoração\n")
-
-    print("\nProduções Iniciais: ", producoes, '\n')    
-    #não testado
-    #primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    # for producao in producoes:
-    #     if producao.getValorDireito()[0] in nao_terminais_default:
-    #         producoes_semelhantes = []
-    #         for prod in producoes:
-    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-    #                 producoes_semelhantes.append(prod)
-    #         for ps in producoes_semelhantes:
-    #             saida = copy.deepcopy(producao.saida)
-    #             del(saida[0])
-    #             ps_saida = copy.deepcopy(ps.saida)
-    #             ps_saida.extend(saida)
-    #             producoes.append(Producao(producao.entrada, ps_saida))
-    #         producoes.remove(producao)
-    #depois de pronto podemos finalmente fatorar
-
-    print("\nProduções pronta para a fatoração: ", producoes, '\n')    
-    
-    # procurando produções que possuam ambiguidade
-    terminais_found = {} # terminais encontrados para cada símbolo
-    for simbolo in nao_terminais:
-        terminais_found[simbolo] = {}
-        for t in terminais:
-            terminais_found[simbolo][t.valor] = 0
-        for producao in producoes:
-            if producao.entrada[0].valor == simbolo.valor:
-                #começa a verificar
-                if producao.saida[0].tipo == 0:
-                    terminais_found[simbolo][producao.saida[0].valor]+=1                
-
-    # removendo ambiguidade e adicionando novos não terminais
-    for simbolo in terminais_found:
-        for terminal in terminais_found[simbolo]:
-            current = terminais_found[simbolo][terminal]
-            # se ambiguidade for encontrada
-            if current >= 2:
-                print("Ambiguidade encontrada: Símbolo %s -> Terminal %s" % (simbolo,terminal))
-                producoes.append(Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal)],[Simbolo(terminal),simbolo]))
-    print("\nProduções Resultantes: ", producoes, '\n')
-
-def insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal):
-    '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
-    novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
-    nao_terminais.append(novo_simbolo)
-    for producao in producoes:
-        if producao.entrada[0].valor == simbolo.valor:
-            if producao.entrada[0].valor == simbolo_inicial.valor:
-                simbolo_inicial.valor = novo_simbolo.valor
-            for elem in producao.saida:
-                if elem.valor == terminal:
-                    producao.saida.remove(elem)
-            if len(producao.saida) == 0:
-                producao.saida.append(Simbolo('&'))
-    return novo_simbolo
-
-def recursaoAEsquerda():
-    '''Remove recursão geral à esquerda'''
-    global producoes
-    # exemplo 5
-    terminais = [Simbolo('a'),Simbolo('b'),Simbolo('c')] # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'),Simbolo('B')] # Lista de Simbolos nao terminais
-    producoes = [Producao(['A'],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('c'),Simbolo('A')]),Producao([Simbolo('A')],[Simbolo('a')]),Producao(['B'],['Aa'])] # Produções
-    simbolo_inicial = 'B' # Símbolo Inicial da Gramática
-    
-    print("\nEntrando na Remoção de Recursão à Esquerda\n")
-
-    # temporário
-    print("\nProduções Iniciais: ", producoes, '\n')
-    print("Recursão encontrada: [B] -> [b, A]")
-    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")
-
-def getAllFirst():
-    '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
-    for nao_terminal in nao_terminais:
-        getFirstByNaoTerminal(nao_terminal)
-
-def firstRecursivo(posicao_da_producao, producao, resultado):
-    """Caso o Nao Terminal tenha um nao terminal como first calcula o first do nao terminal"""
-    temVazio = None
-    for first in firsts:
-        if producao.saida[posicao_da_producao] == first.nao_terminal:
-            temVazio = False
-            for producao_first in first.valor:
-                if producao_first.valor == '&':
-                    temVazio = True
-            if not temVazio:
-                resultado.extend(first.valor)
-            else:
-                firstRecursivo(posicao_da_producao+1, producao, first)
-    if temVazio is None:
-        getFirstByNaoTerminal(producao.saida[posicao_da_producao])
-        firstRecursivo(posicao_da_producao, producao, resultado)
-    return resultado
-
-def getFirstByNaoTerminal(nao_terminal):
-    """Obtem o fisrt com base no nao terminal passado como parametro"""
-    first = []
-    for producao in producoes:
-        if producao.entrada[0].valor == nao_terminal.valor:
-            if producao.saida[0] in terminais:
-                first.append(producao.saida[0])
-            elif producao.saida[0] in nao_terminais:
-                first = firstRecursivo(0, producao, first)
-    firsts.append(FirstOrFollow(nao_terminal, first))
-    return first
-
-def getAllFollow():
-    '''Faz as chamadas de funções para calcular os follows de todos os nao terminais'''
-    cont = 0
-    follow = []
-    for nao_terminal in nao_terminais:
-        if cont == 0:
-            FirstOrFollow(nao_terminal,[Simbolo('$')])
-        for producao in producoes:
-            if nao_terminal in producao.saida:
-                for simbolo in range(len(producao.saida)):
-                    if producao.saida[simbolo] == nao_terminal:
-                        if simbolo+1 == len(producao.saida):
-                            for f in follows:
-                                if producao.entrada[0] == f.nao_terminal:
-                                    follow.extend(f.valor)
-                        else:
-                            if producao.saida[simbolo+1] in terminais:
-                                follow.append(producao.saida[simbolo+1])
-                            elif producao.saida[simbolo+1] in nao_terminais:
-                                if derivaVazio(producao.saida[simbolo+1]):
-                                    for f in follows:
-                                        if producao.entrada[0] == f.nao_terminal:
-                                            follow.extend(f.valor)
-                                else:
-                                    for f in firsts:
-                                        if producao.saida[simbolo+1] == f.nao_terminal:
-                                            follow.extend(f.valor)
-        follows.append(FirstOrFollow(nao_terminal, follow))
-        cont += 1
-
-def derivaVazio(simbolo):
-    deriva = False
-    for producao in producoes:
-        if producao.entrada[0] == simbolo:
-            if producao.saida[0] == '&':
-                deriva = True
-    return deriva
-# Para executar o programa com uma gramática própria, basta descomentar a main, comentar a transformacaoGLC
-# e comentar os exemplos em cada função (idetificados por "exemplo 'n'")
 main()
 #transformacaoGLC()
 #getAllFirst()
