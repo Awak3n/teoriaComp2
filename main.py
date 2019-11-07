@@ -386,8 +386,8 @@ def main():
 
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
-    recursaoAEsquerda()
     fatoracao()
+    recursaoAEsquerda()
 
 
 def eLivre():
@@ -537,7 +537,7 @@ def insereNovoNaoTerminal(simbolo, terminal):
 
 def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
-    global producoes, nao_terminais
+    global producoes, nao_terminais, terminais
 
     print("\nEntrando na Remoção de Recursão à Esquerda\n")
     print("\nProduções Iniciais: ", producoes, '\n')
@@ -569,7 +569,7 @@ def recursaoAEsquerda():
                 novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
                 nao_terminais.append(novo_simbolo)
                 if '&' not in terminais_string_list:
-                    terminais.append('&')
+                    terminais.append(Simbolo('&'))
                     terminais_string_list.append('&')
                 for producao in producoes:
                     if producao.entrada[0].valor == nao_terminais[s_nt].valor:
