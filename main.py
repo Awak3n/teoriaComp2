@@ -626,7 +626,6 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
         for f in first:
             if f.valor not in string_resultado_list:
                 resultado.append(f)
-        firstRecursivo(posicao_da_producao, producao, resultado)
     return resultado
 
 def getFirstByNaoTerminal(nao_terminal):
@@ -787,11 +786,11 @@ def mainExemplo():
     # B => bCB | &
     # C => a
     # codificado:
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática 
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E = TG
     # G = +TG | &
@@ -810,13 +809,13 @@ def mainExemplo():
     # B = Aa | Ce
     # C = A | B | f
     # codificado
-    # terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
-    #           Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
-    #           Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
-    #           Producao([Simbolo('C')], [Simbolo('f')])]
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+              Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+              Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+              Producao([Simbolo('C')], [Simbolo('f')])]
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 4
     # A = CB
     # B = bCB | &
@@ -859,7 +858,7 @@ def reconhecimentoDeEntrada():
 
     # Pacote de exemplos para a Gramática 1
     # Exemplo 1 (reconhece)
-    entrada = ["a","b","a","b","a"]
+    # entrada = ["a","b","a","b","a"]
     # Exemplo 2 (não reconhece)
     # entrada = ["a","b","b","b","a"]
     # Exemplo 3 (reconhece)
