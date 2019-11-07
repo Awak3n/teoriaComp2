@@ -601,39 +601,46 @@ def getAllFollow():
     """Faz as chamadas de funções para calcular os follows de todos os nao terminais"""
     global follows
     cont = 0
-    follow = []
     for nao_terminal in nao_terminais:
+        follow = []
         if cont == 0:
             follow.append(Simbolo('$'))
         for producao in producoes:
-            if nao_terminal in producao.saida:
+            if nao_terminal.valor in producao.getValorDireito():
                 for simbolo in range(len(producao.saida)):
-                    if producao.saida[simbolo] == nao_terminal:
+                    if producao.saida[simbolo].valor == nao_terminal.valor:
                         if simbolo + 1 == len(producao.saida):
                             for f in follows:
-                                if producao.entrada[0] == f.nao_terminal:
+                                if producao.entrada[0].valor == f.nao_terminal.valor:
                                     follow.extend(f.valor)
                         else:
-                            if producao.saida[simbolo + 1] in terminais:
+                            if producao.saida[simbolo + 1].valor in terminais_string_list and producao.saida[simbolo + 1].valor != '&':
                                 follow.append(producao.saida[simbolo + 1])
-                            elif producao.saida[simbolo + 1] in nao_terminais:
+                            elif producao.saida[simbolo + 1].valor in nao_terminais_string_list:
+                                for f in firsts:
+                                    if producao.saida[simbolo + 1].valor == f.nao_terminal.valor:
+                                        follow.extend(f.valor)
                                 if derivaVazio(producao.saida[simbolo + 1]):
                                     for f in follows:
-                                        if producao.entrada[0] == f.nao_terminal:
+                                        if producao.entrada[0].valor == f.nao_terminal.valor:
                                             follow.extend(f.valor)
-                                else:
-                                    for f in firsts:
-                                        if producao.saida[simbolo + 1] == f.nao_terminal:
-                                            follow.extend(f.valor)
+        # limpa vazios e valores repetidos
+        follow_list = []
+        f = 0
+        while f < len(follow):
+            if follow[f].valor == '&' or follow[f].valor in follow_list:
+                follow.remove(follow[f])
+            else:
+                follow_list.append(follow[f].valor)
+                f += 1
         follows.append(FirstOrFollow(nao_terminal, follow))
         cont += 1
 
 def derivaVazio(simbolo):
-    global producoes
     deriva = False
     for producao in producoes:
-        if producao.entrada[0] == simbolo:
-            if producao.saida[0] == '&':
+        if producao.entrada[0].valor == simbolo.valor:
+            if producao.saida[0].valor == '&':
                 deriva = True
     return deriva
 
