@@ -863,7 +863,8 @@ def reconhecimentoDeEntrada():
     # entrada = ["a","b","b","b","a"]
     # Exemplo 3 (reconhece)
     # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    #
+    # Exemplo 4 (Gramatica 3) (nao reconhece)
+    # entrada = ["f","a"]
     # Pacote de exemplos para a Gramática 2
     # Exemplo 1 (reconhece)
     # entrada = ["(","x",")"]
