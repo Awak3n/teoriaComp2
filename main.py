@@ -13,7 +13,6 @@ def getNumber(msg):
         nr_nao_terminal = getNumber(msg)
     return  nr_nao_terminal
 
-
 def checkGramatica():
     #retorna o tipo de gramática (0 para GI,1 para GSC,2 para GLC,3 para GR)
     #irá verificar se as produções seguem as regras dos tipos de gramática da hierarquia de Chomsky
@@ -46,7 +45,8 @@ def checkGramatica():
     else:
         return [0,"Irrestrita"]
 
-def main():
+def construirGramaticaManual():
+    global nao_terminais, simbolo_inicial, terminais, producoes
     ################################
     # 1. Entrada de gramática          
     ################################
@@ -185,8 +185,6 @@ def main():
     # 2. Exibir gramática          
     ################################
 
-    transformacaoGLC()
-
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
     string_producoes = ""
@@ -255,6 +253,9 @@ def main():
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez\n")
         break
+
+def main():
+    construirGramaticaManual()
     ################################
     # 4. Identificação da Gramática
     ################################
@@ -383,12 +384,10 @@ def main():
                 for k,v in value.items():
                     print("    Lendo '%s' irá para => %s" % (k,v))
 
-
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
     fatoracao()
     recursaoAEsquerda()
-
 
 def eLivre():
     '''Remove o símbolo vazio &'''
@@ -423,7 +422,6 @@ def eLivre():
     producoes.extend(producoes_aux)
     print("\nProduções Resultantes: ", producoes, '\n')
 
-
 def remocaoUnitaria():
     '''Remove produções unitárias'''
     global producoes, terminais, nao_terminais, simbolo_inicial
@@ -455,7 +453,6 @@ def remocaoUnitaria():
             producoes_concluidas.append(producao.getValorEsquerdo())
         producoes_semelhantes = []
     print("\nProduções Resultantes: ", producoes, '\n')
-
 
 def fatoracao():
     '''Realiza a fatoração'''
@@ -518,7 +515,6 @@ def fatoracao():
                              [Simbolo(terminal), simbolo]))
     print("\nProduções Resultantes: ", producoes, '\n')
 
-
 def insereNovoNaoTerminal(simbolo, terminal):
     '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
     novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
@@ -533,7 +529,6 @@ def insereNovoNaoTerminal(simbolo, terminal):
             if len(producao.saida) == 0:
                 producao.saida.append(Simbolo('&'))
     return novo_simbolo
-
 
 def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
@@ -589,7 +584,6 @@ def getAllFirst():
     for nao_terminal in nao_terminais:
         getFirstByNaoTerminal(nao_terminal)
 
-
 def firstRecursivo(posicao_da_producao, producao, resultado):
     """Caso o Nao Terminal tenha um nao terminal como first calcula o first do nao terminal"""
     global firsts
@@ -624,7 +618,6 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
         firstRecursivo(posicao_da_producao, producao, resultado)
     return resultado
 
-
 def getFirstByNaoTerminal(nao_terminal):
     """Obtem o first com base no nao terminal passado como parametro"""
     global firsts, tabela
@@ -645,7 +638,6 @@ def getFirstByNaoTerminal(nao_terminal):
     if not jaFoiAdiconado:
         firsts.append(FirstOrFollow(nao_terminal, first))
     return first
-
 
 def getAllFollow():
     """Faz as chamadas de funções para calcular os follows de todos os nao terminais"""
@@ -701,11 +693,11 @@ def reconhecimentoDeEntrada():
     '''Realiza o reconhecimento de uma entrada'''
     # Para utilizar os exemplos, basta comentar este código inicial 
     # e descomentar o código do exemplo desejado para gramática escolhida
-    entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
-    entrada_manual = entrada_manual.replace(' ','')
-    entrada = []
-    for char in entrada_manual:
-        entrada.append(char)
+    # entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
+    # entrada_manual = entrada_manual.replace(' ','')
+    # entrada = []
+    # for char in entrada_manual:
+    #     entrada.append(char)
 
     # Pacote de exemplos para a Gramática 1
     # Gramática 1
@@ -725,7 +717,7 @@ def reconhecimentoDeEntrada():
     # Exemplo 2 (não reconhece)
     # entrada = ["x","+","+","x"]
     # Exemplo 3 (reconhece)
-    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
+    entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
     
     entrada.append("$") 
     entrada.reverse() #revertendo para poder tratar como uma pilha
@@ -870,12 +862,12 @@ def mainExemplo():
     # U = *FU | &
     # F = (E) | x
     # codificado
-    #terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    #nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    #producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-    #            Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-    #            Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    #simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+               Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+               Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
     # B = Aa | Ce
