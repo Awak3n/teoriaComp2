@@ -892,12 +892,12 @@ def mainExemplo():
     # A = CB
     # B = bCB | &
     # C = B
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]
-    simbolo_inicial = Simbolo('A')
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]),
+    #              Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]
+    # simbolo_inicial = Simbolo('A')
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
