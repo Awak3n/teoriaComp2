@@ -570,6 +570,7 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
                     temVazio = True
             if not temVazio:
                 resultado.extend(first.valor)
+                tabela[producao.entrada[0].valor, producao_first.valor] = producao
             else:
                 firstRecursivo(posicao_da_producao + 1, producao, first)
     if temVazio is None:
@@ -589,8 +590,8 @@ def getFirstByNaoTerminal(nao_terminal):
                 tabela[producao.entrada[0].valor,producao.saida[0].valor] = producao
             elif producao.saida[0].valor in nao_terminais_string_list:
                 first = firstRecursivo(0, producao, first)
-                print(producao.entrada[0].valor + " ===> ")
-                print(first)
+                for f in first:
+                    tabela[producao.entrada[0].valor,f.valor] = producao
     jaFoiAdiconado = False
     for f in firsts:
         if nao_terminal.valor == f.nao_terminal.valor:
@@ -637,6 +638,9 @@ def getAllFollow():
                 follow_list.append(follow[f].valor)
                 f += 1
         follows.append(FirstOrFollow(nao_terminal, follow))
+        if derivaVazio(nao_terminal):
+            for simbolo in follow:
+                tabela[nao_terminal.valor,simbolo.valor] = Producao([Simbolo(nao_terminal.valor)], [Simbolo('&')])
         cont += 1
 
 def derivaVazio(simbolo):
@@ -651,6 +655,8 @@ def construirTabela():
     
     pass
 
+def IWillLookForYou_IWillFindYou_And_IWillAddYou():
+    pass
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -729,29 +735,56 @@ def mainTeste():
 def mainExemplo():
     global terminais, nao_terminais, producoes, simbolo_inicial
     # Exemplo 1
-    terminais = [Simbolo('a'), Simbolo('('), Simbolo('[')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('S'), Simbolo('A')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('S')], [Simbolo('('), Simbolo('S'), Simbolo(')')]), Producao([Simbolo('S')], [Simbolo('['), Simbolo('S'), Simbolo(']')]),
-                 Producao([Simbolo('S')], [Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
+    # A => CB
+    # B => bCB | &
+    # C => a
+    # codificado:
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # Exemplo 2
+    # S = (S) | [S] | A
+    # A = a
+    # codificado
+    # terminais = [Simbolo('a'), Simbolo('('), Simbolo('['), Simbolo(')'), Simbolo(']')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('S'), Simbolo('A')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('S')], [Simbolo('('), Simbolo('S'), Simbolo(')')]), Producao([Simbolo('S')], [Simbolo('['), Simbolo('S'), Simbolo(']')]),
+    #              Producao([Simbolo('S')], [Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
+    # for terminal in terminais:
+    #     terminais_string_list.append(terminal.valor)
+    # for nao_terminal in nao_terminais:
+    #    nao_terminais_string_list.append(nao_terminal.valor)
+    # Exemplo 3
+    # E = TG
+    # G = +TG | &
+    # T = FU
+    # U = *FU | &
+    # F = (E) | x
+    # codificado
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+                Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+                Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
-
-    simbolo_inicial = Simbolo('S')  # Símbolo Inicial da Gramática
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # descomentar na hora da apresentação
+    #fatoracao()
+    #recursaoAEsquerda()
     getAllFirst()
     getAllFollow()
     print("Firsts:")
-    for first in firsts:
-        print(first.nao_terminal)
     print(firsts)
     print("Follows:")
     print(follows)
-    print("Tabela:")
+    print("\"Tabela\":") # montar isso bonitinho amanhã se sobrar tempo
     print(tabela)
+    
 
 #main()
 mainExemplo()
 #mainTeste() # função usada para testar first, follow e outras coisas. Preenche as variaveis sem uso da interface
-#getAllFirst()
-#getAllFollow()
