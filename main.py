@@ -570,6 +570,7 @@ def recursaoAEsquerda():
                 nao_terminais.append(novo_simbolo)
                 if '&' not in terminais_string_list:
                     terminais.append('&')
+                    terminais_string_list.append('&')
                 for producao in producoes:
                     if producao.entrada[0].valor == nao_terminais[s_nt].valor:
                         producao.saida.append(novo_simbolo)
