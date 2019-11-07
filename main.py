@@ -700,80 +700,6 @@ def derivaVazio(simbolo):
                 deriva = True
     return deriva
 
-def reconhecimentoDeEntrada():
-    '''Realiza o reconhecimento de uma entrada'''
-    # Para utilizar os exemplos, basta comentar este código inicial 
-    # e descomentar o código do exemplo desejado para gramática escolhida
-    entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
-    entrada_manual = entrada_manual.replace(' ','')
-    entrada = []
-    for char in entrada_manual:
-        entrada.append(char)
-
-    # Pacote de exemplos para a Gramática 1
-    # Gramática 1
-    # A => CB
-    # B => bCB | &
-    # C => a
-    # Exemplo 1 (reconhece)
-    # entrada = ["a","b","a","b","a"]
-    # Exemplo 2 (não reconhece)
-    # entrada = ["a","b","b","b","a"]
-    # Exemplo 3 (reconhece)
-    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    #
-    # Pacote de exemplos para a Gramática 2
-    # Exemplo 1 (reconhece)
-    # entrada = ["(","x",")"]
-    # Exemplo 2 (não reconhece)
-    # entrada = ["x","+","+","x"]
-    # Exemplo 3 (reconhece)
-    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
-    
-    entrada.append("$") 
-    entrada.reverse() #revertendo para poder tratar como uma pilha
-    pilha = ["$",simbolo_inicial.valor]
-    saida = ""
-    table = texttable.Texttable()
-    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
-    
-    #loop principal de reconhecimento
-    while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
-        #Regras:
-        # Se tem NT na pilha, verifica na tabela se reconhece 
-        # e substituiu na pilha o NT pelo lado direito (pop NT e push lado direito)
-        topoP = len(pilha)-1
-        topoE = len(entrada)-1
-        if (pilha[topoP] in nao_terminais_default):
-            if (pilha[topoP],entrada[topoE]) in tabela:
-                saida = tabela[(pilha[topoP],entrada[topoE])] #producao
-                direito = copy.deepcopy(saida.saida)
-                pilha.pop()
-                if(direito[0].valor != "&"):
-                    direito.reverse()
-                    for elem in direito:
-                        pilha.append(elem.valor)
-            else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
-                return
-        elif (pilha[topoP] in terminais_default):
-            # Se tem T na pilha e o mesmo T na entrada, elimina ambos (reconhece)
-            if (pilha[topoP] == entrada[topoE]):
-                saida = ''
-                pilha.pop()
-                entrada.pop()
-            else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
-                return
-        else:
-            print(table.draw())
-            print("Erro: Entrada não reconhecida.")
-            return
-        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
-    print('\n' + table.draw() + '\n')
-
 def listaToStr(lista):
     listaStr = ''
     for l in lista:
@@ -861,11 +787,11 @@ def mainExemplo():
     # B => bCB | &
     # C => a
     # codificado:
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática 
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática 
     # Gramática 2
     # E = TG
     # G = +TG | &
@@ -902,11 +828,11 @@ def mainExemplo():
     #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]
     # simbolo_inicial = Simbolo('A')
 
-    # for terminal in terminais:
-    #     terminais_string_list.append(terminal.valor)
-    # for nao_terminal in nao_terminais:
-    #     nao_terminais_string_list.append(nao_terminal.valor)
-    #
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+    
     transformacaoGLC()
     getAllFirst()
     getAllFollow()
@@ -921,5 +847,76 @@ def mainExemplo():
     print(tabelaPretty.draw() + '\n')
     reconhecimentoDeEntrada()
 
-main()
-#mainExemplo()
+def reconhecimentoDeEntrada():
+    '''Realiza o reconhecimento de uma entrada'''
+    # Para utilizar os exemplos, basta comentar este código inicial 
+    # e descomentar o código do exemplo desejado para gramática escolhida
+    # entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
+    # entrada_manual = entrada_manual.replace(' ','')
+    # entrada = []
+    # for char in entrada_manual:
+    #     entrada.append(char)
+
+    # Pacote de exemplos para a Gramática 1
+    # Exemplo 1 (reconhece)
+    entrada = ["a","b","a","b","a"]
+    # Exemplo 2 (não reconhece)
+    # entrada = ["a","b","b","b","a"]
+    # Exemplo 3 (reconhece)
+    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
+    #
+    # Pacote de exemplos para a Gramática 2
+    # Exemplo 1 (reconhece)
+    # entrada = ["(","x",")"]
+    # Exemplo 2 (não reconhece)
+    # entrada = ["x","+","+","x"]
+    # Exemplo 3 (reconhece)
+    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
+    
+    entrada.append("$") 
+    entrada.reverse() #revertendo para poder tratar como uma pilha
+    pilha = ["$",simbolo_inicial.valor]
+    saida = ""
+    table = texttable.Texttable()
+    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    
+    #loop principal de reconhecimento
+    while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
+        #Regras:
+        # Se tem NT na pilha, verifica na tabela se reconhece 
+        # e substituiu na pilha o NT pelo lado direito (pop NT e push lado direito)
+        topoP = len(pilha)-1
+        topoE = len(entrada)-1
+        if (pilha[topoP] in nao_terminais_default):
+            if (pilha[topoP],entrada[topoE]) in tabela:
+                saida = tabela[(pilha[topoP],entrada[topoE])] #producao
+                direito = copy.deepcopy(saida.saida)
+                pilha.pop()
+                if(direito[0].valor != "&"):
+                    direito.reverse()
+                    for elem in direito:
+                        pilha.append(elem.valor)
+            else:
+                print(table.draw())
+                print("Erro: Entrada não reconhecida.")
+                return
+        elif (pilha[topoP] in terminais_default):
+            # Se tem T na pilha e o mesmo T na entrada, elimina ambos (reconhece)
+            if (pilha[topoP] == entrada[topoE]):
+                saida = ''
+                pilha.pop()
+                entrada.pop()
+            else:
+                print(table.draw())
+                print("Erro: Entrada não reconhecida.")
+                return
+        else:
+            print(table.draw())
+            print("Erro: Entrada não reconhecida.")
+            return
+        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    print('\n' + table.draw() + '\n')
+
+
+#main()
+mainExemplo()
