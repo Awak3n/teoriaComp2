@@ -7,7 +7,7 @@ def getNumber(msg):
     try:
         while (True):
             nr_nao_terminal = int(input(msg))
-            if nr_nao_terminal >= 1 and nr_nao_terminal <= 26:
+            if nr_nao_terminal >= 1 and nr_nao_terminal <= 10:
                 break
     except:
         nr_nao_terminal = getNumber(msg)
@@ -55,7 +55,7 @@ def main():
 
     #Não-terminais
     #Gera os não-terminais automáticamente
-    nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 26)\n')
+    nr_nao_terminal = getNumber('Quantos simbolos não-terminais você deseja? (De 1 a 10)\n')
     print('Seus simbolos não-terminais são:')
     string_nao_terminal = ''
     for x in range(nr_nao_terminal):
@@ -69,23 +69,13 @@ def main():
     #Terminais
     # Gera os terminais automáticamente
     nr_terminal = getNumber('Quantos simbolos terminais você deseja?\n')
-    resposta = input("A gramática aceita o símbolo vazio |&|? (S/N)\n")
-    resposta = resposta.strip().lower()
     print('Seus simbolos terminais são:')
     string_terminal = ''
     for x in range(nr_terminal):
         terminais.append(Simbolo(terminais_default[x]))
-        if x == nr_terminal -1:
-            if resposta == "sim" or resposta == "yes" or resposta == "y" or resposta == "s":
-                string_terminal += "'" + terminais_default[x] + "', "
-                terminais.append(Simbolo('&'))
-                string_terminal += "'&'"
-            else:
-                string_terminal += "'" + terminais_default[x] + "'"
-        else:
-            string_terminal += "'" + terminais_default[x] + "', "
+        string_terminal += "'" + terminais_default[x] + "', "
     print(string_terminal)
-
+    terminais.append(Simbolo('&'))
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
@@ -181,207 +171,7 @@ def main():
         p_right = p_right[:-1]
         contador += 1
 
-    ################################
-    # 2. Exibir gramática          
-    ################################
-
-    vetor_producoes_esquerdo = []
-    vetor_producoes_direito = []
-    string_producoes = ""
-    for producao in producoes:
-        vetor_producoes_direito.append(producao.getValorDireito())
-        vetor_producoes_esquerdo.append(producao.getValorEsquerdo())
-    for x in range(len(vetor_producoes_esquerdo)):
-        for y in range(x):
-            if vetor_producoes_esquerdo[x] == vetor_producoes_esquerdo[y] and vetor_producoes_esquerdo[x] != "":
-                vetor_producoes_direito[y] += "|" + vetor_producoes_direito[x]
-                vetor_producoes_esquerdo[x] = ""
-    for x in range(len(vetor_producoes_esquerdo)):
-        if vetor_producoes_esquerdo[x] != "":
-            string_producoes += vetor_producoes_esquerdo[x] +" => " + vetor_producoes_direito[x] + ", "
-    string_producoes = string_producoes[:-2]
-
-    string_nao_terminal = string_nao_terminal.replace("'","")
-    string_terminal = string_terminal.replace("'","")
-    print("\nGramática resultante:")
-    print("({%s},{%s},{%s},%s)\n" % (string_nao_terminal,string_terminal,string_producoes,simbolo_inicial.valor))
-
-    ################################
-    # 3. Verificação da gramática          
-    ################################
-    # Passo 1: Ver se as produções abrangem todo o alfabeto
-    # Passo 2: Evitar loopings obvios (quando não há nem sequer uma produção com apenas terminais)
-    for simbolo_terminal in terminais:
-        abrange_alfabeto = False
-        if simbolo_terminal.valor == '&':
-            abrange_alfabeto = True
-        else:
-            for producao in producoes:
-                for simbolo_saida in producao.saida:
-                    if simbolo_terminal.valor == simbolo_saida.valor:
-                        abrange_alfabeto = True
-        if abrange_alfabeto is False:
-            print("Erro Estrutural")
-            print("Cada simbolo terminal precisa aparecer ao menos uma vez, exceto o |&| se houver\n")
-            break
-    for simbolo_nao_terminal in nao_terminais:
-        abrange_alfabeto = False
-        contador_p1 = 0
-        contador_p2 = 0
-        is_a_looping = True
-        # se ele é o simbolo inicial, ele automaticamente abrange o alfabeto
-        if simbolo_nao_terminal.valor == simbolo_inicial.valor: 
-            abrange_alfabeto = True
-        for producao in producoes:
-            only_terminais = True
-            for simbolo_saida in producao.saida:
-                # verifica se há apenas terminais no lado direito dessa produção
-                if only_terminais is False or simbolo_saida.tipo == 1: 
-                    only_terminais = False
-                # se achou uma produção do lado direito
-                if simbolo_nao_terminal.valor == simbolo_saida.valor: 
-                    # procura o simbolo em outra produção do lado esquerdo em outra produção
-                    for producao2 in producoes: 
-                        for simbolo_entrada in producao2.saida:
-                            if contador_p1 != contador_p2 and simbolo_nao_terminal.valor == simbolo_entrada.valor:
-                                abrange_alfabeto = True
-                            contador_p2 += 1
-            contador_p1 += 1
-        if only_terminais is True:
-            is_a_looping = False
-        if abrange_alfabeto is False:
-            print("Erro Estrutural")
-            print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez\n")
-        break
-
-    ################################
-    # 4. Identificação da Gramática
-    ################################
-
-    tipo_gramatica = checkGramatica()
-    print("E é uma Gramática %s.\n" % tipo_gramatica[1])
-
-    ################################
-    # 5. Geração de Sentenças
-    ################################
-    if is_a_looping:
-        print("Há problemas na gramática, corrija-os para que saidas possam ser geradas")
-    # vetor com os valores das saidas
-    vetor_resultante = [] 
-    string = simbolo_inicial.valor
-    # etapas pelas quais o simbolo inicial passou
-    etapas = [string] 
-    contador_producoes = 0
-    contador_tentativas = 0
-    #enquanto não tiver as 3 saidas ou contador de tentativas não passou das 25k...
-    while len(vetor_resultante) != 3 and contador_tentativas < 25000: 
-        possui_nao_terminal = True
-        # verifica se string está com somente não-terminais
-        for letra in string: 
-            if letra not in nao_terminais_default:
-                possui_nao_terminal = False
-            else:
-                possui_nao_terminal = True
-                break
-        if possui_nao_terminal is False or string == "":
-            # se possui apenas terminais e ainda não encontrou um resultado igual...
-            if string not in vetor_resultante and string != "": 
-                # salva resultado
-                vetor_resultante.append(string)
-                etapas.append(simbolo_inicial.valor)
-                string = simbolo_inicial.valor
-            else:
-                etapas[len(vetor_resultante)] = simbolo_inicial.valor
-                string = simbolo_inicial.valor
-            contador_producoes = 0
-        # enquanto ainda numero de produções não passou de 50 e possui não-terminais...
-        while possui_nao_terminal is True and contador_producoes < 50: 
-            possiveis_producoes = []
-            for producao in producoes:
-                if producao.getValorEsquerdo() in string:
-                    possiveis_producoes.append(producao)
-            if len(possiveis_producoes) != 0:
-                if len(possiveis_producoes) == 1:
-                    if possiveis_producoes[0].getValorDireito() == "&":
-                        string = string.replace(possiveis_producoes[0].getValorEsquerdo(),"", 1)
-                        etapas[len(vetor_resultante)] += " -> " + string
-                    else:
-                        string = string.replace(possiveis_producoes[0].getValorEsquerdo(),possiveis_producoes[0].getValorDireito(), 1)
-                        etapas[len(vetor_resultante)] += " -> " + string
-                else:
-                    nr_producao = rng.randint(0,len(possiveis_producoes)-1)
-                    if possiveis_producoes[nr_producao].getValorDireito() == "&":
-                        string = string.replace(possiveis_producoes[nr_producao].getValorEsquerdo(),"", 1)
-                        etapas[len(vetor_resultante)] += " -> " + string
-                    else:
-                        string = string.replace(possiveis_producoes[nr_producao].getValorEsquerdo(), possiveis_producoes[nr_producao].getValorDireito(), 1)
-                        etapas[len(vetor_resultante)] += " -> " + string
-            contador_producoes += 1
-        contador_tentativas += 1
-    contador = 0
-    print("Resultados possíveis:")
-    for vetor in vetor_resultante:
-        contador += 1
-        print("Saida %i: %s" % (contador,vetor))
-        print("Etapas: %s" % etapas[contador-1])
-    
-    ################################
-    # 6. Autômato Finito          
-    ################################
-
-    if tipo_gramatica[0] == 0:
-        print("\nA Gramática %s é interpretada por uma Máquina de Turing." % tipo_gramatica[1])
-    elif tipo_gramatica[0] == 1:
-        print("\nA Gramática %s é interpretada por um Autômato linearmente limitado." % tipo_gramatica[1])
-    elif tipo_gramatica[0] == 2:
-        print("\nA Gramática %s é interpretada por um Autômato com pilha." % tipo_gramatica[1])
-    else: 
-        print("\nA Gramática %s é interpretada por um Autômato Finito: " % tipo_gramatica[1])
-        
-        # símbolo que indica estado final q0
-        string_estados = ''
-        string_terminal = string_terminal.replace(", ","")
-        string_nao_terminal = string_nao_terminal.replace(", ","")
-        
-        for i in range(0,len(string_nao_terminal)):
-            string_estados += 'q'+str(i+1)+', '
-        string_estados = string_estados[:-2]
-
-        # exibe o autômato finito
-        print("AF: ({%s} U q0 , {%s}, § , %s, q0)" % (string_estados,string_terminal,'q'+str(string_nao_terminal.index(simbolo_inicial.valor)+1)))
-        
-        # estados será um dicionário de estados com um dicionário de transições para cada T
-        estados = {}
-        for char in range(0,len(string_nao_terminal)+1):
-            key = 'q'+str(char)
-            estados[key] = {}
-            for index in range(0,len(string_terminal)):
-                estados[key][string_terminal[index]] = []
-
-        #Cria uma lista com todas as transições de estados
-        for producao in producoes:
-            key = 'q'+str(string_nao_terminal.index(producao.entrada[0].valor)+1)
-            transicao = producao.saida[0].valor
-            if len(producao.saida) == 2:
-                #se possuir um T seguido de um NT, irá para o estado NT
-                entry = 'q'+str(string_nao_terminal.index(producao.saida[1].valor)+1)
-                estados[key][transicao].append(entry)
-            else:
-                #se possuir apenas um T, irá para o estado final
-                entry = 'q0'
-                estados[key][transicao].append(entry)
-        
-        # Exibindo a tabela de transição
-        print("\nOnde § terá a seguinte tabela de transição: ")
-        for key,value in estados.items():
-            if(key == 'q0'):
-                print("Estado final:", key)
-                print("    Finaliza as transições.")
-            else:
-                print("Estado:", key)
-                for k,v in value.items():
-                    print("    Lendo '%s' irá para => %s" % (k,v))
-    
+    transformacaoGLC()
     getAllFirst()
     getAllFollow()
     print("\nFirsts:")
@@ -760,25 +550,6 @@ class Producao(object):
     def __repr__(self):
          return str(self.entrada)+' -> '+str(self.saida)
 
-def mainTeste():
-    global terminais, nao_terminais, producoes, simbolo_inicial, tabela
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    for terminal in terminais:
-        terminais_string_list.append(terminal.valor)
-    for nao_terminal in nao_terminais:
-        nao_terminais_string_list.append(nao_terminal.valor)
-
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
-    getAllFirst()
-    getAllFollow()
-    print("Firsts:")
-    print(firsts)
-    print("Follows:")
-    print(follows)
-
 def mainExemplo():
     global terminais, nao_terminais, producoes, simbolo_inicial
     # Gramática 1
@@ -909,5 +680,5 @@ def reconhecimentoDeEntrada():
     print('\n' + table.draw() + '\n')
 
 
-#main()
-mainExemplo()
+main()
+#mainExemplo()
