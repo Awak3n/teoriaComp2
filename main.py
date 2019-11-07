@@ -595,16 +595,19 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
     global firsts
     temVazio = None
     for first in firsts:
-        if producao.saida[posicao_da_producao] == first.nao_terminal:
-            temVazio = False
-            for producao_first in first.valor:
-                if producao_first.valor == '&':
-                    temVazio = True
-            if not temVazio:
-                resultado.extend(first.valor)
-                tabela[producao.entrada[0].valor, producao_first.valor] = producao
-            else:
-                firstRecursivo(posicao_da_producao + 1, producao, first)
+        try:
+            if producao.saida[posicao_da_producao] == first.nao_terminal:
+                temVazio = False
+                for producao_first in first.valor:
+                    if producao_first.valor == '&':
+                        temVazio = True
+                if not temVazio:
+                    resultado.extend(first.valor)
+                    tabela[producao.entrada[0].valor, producao_first.valor] = producao
+                else:
+                    firstRecursivo(posicao_da_producao + 1, producao, first)
+        except:
+            pass
     if temVazio is None:
         getFirstByNaoTerminal(producao.saida[posicao_da_producao])
         firstRecursivo(posicao_da_producao, producao, resultado)
@@ -867,13 +870,23 @@ def mainExemplo():
     # B = Aa | Ce
     # C = A | B | f
     # codificado
-    terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    # terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+    #           Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+    #           Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+    #           Producao([Simbolo('C')], [Simbolo('f')])]
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # Gramática 4
+    # A = CB
+    # B = bCB | &
+    # C = B
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
-               Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
-               Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
-               Producao([Simbolo('C')], [Simbolo('f')])]
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('B')])]
+    simbolo_inicial = Simbolo('A')
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)

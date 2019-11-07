@@ -130,8 +130,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
-          <line>556</line>
-          <option name="timeStamp" value="2" />
+          <line>588</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>620</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>596</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -144,10 +154,7 @@
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="producoes[p].entrada[0].valor" language="Python" />
         <watch expression="producoes" language="Python" />
-        <watch expression="nao_terminais[s_nt].valor" language="Python" />
-        <watch expression="producoes[p]" language="Python" />
       </configuration>
     </watches-manager>
   </component>
