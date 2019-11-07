@@ -840,15 +840,15 @@ def reconhecimentoDeEntrada():
     '''Realiza o reconhecimento de uma entrada'''
     # Para utilizar os exemplos, basta comentar este código inicial 
     # e descomentar o código do exemplo desejado para gramática escolhida
-    # entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
-    # entrada_manual = entrada_manual.replace(' ','')
-    # entrada = []
-    # for char in entrada_manual:
-    #     entrada.append(char)
+    entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
+    entrada_manual = entrada_manual.replace(' ','')
+    entrada = []
+    for char in entrada_manual:
+        entrada.append(char)
 
     # Pacote de exemplos para a Gramática 1
     # Exemplo 1 (não reconhece)
-    entrada = ["a","b","b","b","a"]
+    # entrada = ["a","b","b","b","a"]
     # Exemplo 2 (reconhece)
     # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
     #
@@ -863,12 +863,6 @@ def reconhecimentoDeEntrada():
     # entrada = ["f"]
     # Exemplo 2 (reconhece)
     # entrada = ["f","a","a","d"]
-    #
-    # Pacote de exemplos para a Gramática 4
-    # Exemplo 1 (não reconhece)
-    # entrada = ['b']
-    # Exemplo 2 (reconhece)
-    # entrada = ['b','b']
 
     entrada.append("$") 
     entrada.reverse() #revertendo para poder tratar como uma pilha
