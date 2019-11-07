@@ -108,11 +108,11 @@ def main():
 
     #Produções
     #Input e validação inicial das produções
-    print("\nAgora as produções:")
+    print("\nAgora as produções: (MÁXIMO 10)")
     contador = 1
     p_left = ''
     p_right = ''
-    while True:
+    while len(producoes) < 11:
         sintaxe_error = True
         #Criando a produção do lado esquerdo
         while sintaxe_error:
