@@ -1,5 +1,6 @@
 import random as rng
 import copy
+import texttable
 
 #Pega o número de NT desejados e o converte em 'n' NT
 def getNumber(msg):
@@ -390,17 +391,17 @@ def transformacaoGLC():
 
 def eLivre():
     '''Remove o símbolo vazio &'''
-    global producoes
+    global producoes, terminais, nao_terminais, simbolo_inicial
     # exemplo 2
-    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B')]),
-                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('a'), Simbolo('B')]),
-                 Producao([Simbolo('A')], [Simbolo('b'), Simbolo('A')]),
-                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B'), Simbolo('b')]),
-                 Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')])]  # Produções
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B')]),
+    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('a'), Simbolo('B')]),
+    #              Producao([Simbolo('A')], [Simbolo('b'), Simbolo('A')]),
+    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B'), Simbolo('b')]),
+    #              Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]),
+    #              Producao([Simbolo('B')], [Simbolo('&')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
     print("\nEntrando na Remoção de & (&-livre)\n")
 
@@ -424,14 +425,14 @@ def eLivre():
 
 def remocaoUnitaria():
     '''Remove produções unitárias'''
-    global producoes
+    global producoes, terminais, nao_terminais, simbolo_inicial
     # exemplo 3
-    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('A')]),
-                 Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]),
-                 Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
-    simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('A')]),
+    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]),
+    #              Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
     print("\nEntrando na Remoção de Produções Unitárias\n")
 
     print("\nProduções Iniciais: ", producoes, '\n')
@@ -651,12 +652,85 @@ def derivaVazio(simbolo):
                 deriva = True
     return deriva
 
-def construirTabela():
-    
-    pass
+def reconhecimentoDeEntrada():
+    '''Realiza o reconhecimento de uma entrada'''
+    # Para utilizar os exemplos, basta comentar este código inicial 
+    # e descomentar o código do exemplo desejado para gramática escolhida
+    entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
+    entrada_manual = entrada_manual.replace(' ','')
+    entrada = []
+    for char in entrada_manual:
+        entrada.append(char)
 
-def IWillLookForYou_IWillFindYou_And_IWillAddYou():
-    pass
+    # Pacote de exemplos para a Gramática 1
+    # Gramática 1
+    # A => CB
+    # B => bCB | &
+    # C => a
+    # Exemplo 1 (reconhece)
+    # entrada = ["a","b","a","b","a"]
+    # Exemplo 2 (não reconhece)
+    # entrada = ["a","b","b","b","a"]
+    # Exemplo 3 (reconhece)
+    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
+    #
+    # Pacote de exemplos para a Gramática 2
+    # Exemplo 1 (reconhece)
+    # entrada = ["(","x",")"]
+    # Exemplo 2 (não reconhece)
+    # entrada = ["x","+","+","x"]
+    # Exemplo 3 (reconhece)
+    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
+    
+    entrada.append("$") 
+    entrada.reverse() #revertendo para poder tratar como uma pilha
+    pilha = ["$",simbolo_inicial.valor]
+    saida = ""
+    table = texttable.Texttable()
+    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    
+    #loop principal de reconhecimento
+    while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
+        #Regras:
+        # Se tem NT na pilha, verifica na tabela se reconhece 
+        # e substituiu na pilha o NT pelo lado direito (pop NT e push lado direito)
+        topoP = len(pilha)-1
+        topoE = len(entrada)-1
+        if (pilha[topoP] in nao_terminais_default):
+            if (pilha[topoP],entrada[topoE]) in tabela:
+                saida = tabela[(pilha[topoP],entrada[topoE])] #producao
+                direito = copy.deepcopy(saida.saida)
+                pilha.pop()
+                if(direito[0].valor != "&"):
+                    direito.reverse()
+                    for elem in direito:
+                        pilha.append(elem.valor)
+            else:
+                print(table.draw())
+                print("Erro: Entrada não reconhecida.")
+                return
+        elif (pilha[topoP] in terminais_default):
+            # Se tem T na pilha e o mesmo T na entrada, elimina ambos (reconhece)
+            if (pilha[topoP] == entrada[topoE]):
+                saida = ''
+                pilha.pop()
+                entrada.pop()
+            else:
+                print(table.draw())
+                print("Erro: Entrada não reconhecida.")
+                return
+        else:
+            print(table.draw())
+            print("Erro: Entrada não reconhecida.")
+            return
+        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    print('\n' + table.draw() + '\n')
+
+def listaToStr(lista):
+    listaStr = ''
+    for l in lista:
+        listaStr += l
+    return listaStr
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -734,44 +808,34 @@ def mainTeste():
 
 def mainExemplo():
     global terminais, nao_terminais, producoes, simbolo_inicial
-    # Exemplo 1
+    # Gramática 1
     # A => CB
     # B => bCB | &
     # C => a
     # codificado:
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    # Exemplo 2
-    # S = (S) | [S] | A
-    # A = a
-    # codificado
-    # terminais = [Simbolo('a'), Simbolo('('), Simbolo('['), Simbolo(')'), Simbolo(']')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('S'), Simbolo('A')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('S')], [Simbolo('('), Simbolo('S'), Simbolo(')')]), Producao([Simbolo('S')], [Simbolo('['), Simbolo('S'), Simbolo(']')]),
-    #              Producao([Simbolo('S')], [Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
-    # for terminal in terminais:
-    #     terminais_string_list.append(terminal.valor)
-    # for nao_terminal in nao_terminais:
-    #    nao_terminais_string_list.append(nao_terminal.valor)
-    # Exemplo 3
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática 
+    
+    # Gramática 2
     # E = TG
     # G = +TG | &
     # T = FU
     # U = *FU | &
     # F = (E) | x
     # codificado
-    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-                Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-                Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+    #             Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+    #             Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
-    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # descomentar na hora da apresentação
     #fatoracao()
     #recursaoAEsquerda()
@@ -783,6 +847,7 @@ def mainExemplo():
     print(follows)
     print("\"Tabela\":") # montar isso bonitinho amanhã se sobrar tempo
     print(tabela)
+    reconhecimentoDeEntrada()
     
 
 #main()
