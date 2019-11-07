@@ -459,12 +459,12 @@ def fatoracao():
     '''Realiza a fatoração'''
     global producoes, nao_terminais, simbolo_inicial
     # exemplo 4.1
-    terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')]),
-                 Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a'), Simbolo('A')]),
-                 Producao([Simbolo('C')], [Simbolo('a'), Simbolo('B')])]  # Produções
-    simbolo_inicial = Simbolo('C')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')]),
+    #              Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a'), Simbolo('A')]),
+    #              Producao([Simbolo('C')], [Simbolo('a'), Simbolo('B')])]  # Produções
+    # simbolo_inicial = Simbolo('C')  # Símbolo Inicial da Gramática
 
     # exemplo 4.2
     # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
@@ -579,15 +579,18 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
 
 
 def getFirstByNaoTerminal(nao_terminal):
-    """Obtem o fisrt com base no nao terminal passado como parametro"""
-    global firsts
+    """Obtem o first com base no nao terminal passado como parametro"""
+    global firsts, tabela
     first = []
     for producao in producoes:
         if producao.entrada[0].valor == nao_terminal.valor:
             if producao.saida[0].valor in terminais_string_list:
                 first.append(producao.saida[0])
+                tabela[producao.entrada[0].valor,producao.saida[0].valor] = producao
             elif producao.saida[0].valor in nao_terminais_string_list:
                 first = firstRecursivo(0, producao, first)
+                print(producao.entrada[0].valor + " ===> ")
+                print(first)
     jaFoiAdiconado = False
     for f in firsts:
         if nao_terminal.valor == f.nao_terminal.valor:
@@ -637,7 +640,12 @@ def derivaVazio(simbolo):
                 deriva = True
     return deriva
 
-terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&']
+def construirTabela():
+    
+    pass
+
+
+terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
@@ -647,6 +655,7 @@ producoes = [] # Produções
 simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
 follows = [] # Follows
+tabela = {} # Tabela de Análise
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -705,12 +714,37 @@ def mainTeste():
     simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     getAllFirst()
     getAllFollow()
-    print("Fists:")
+    print("Firsts:")
     print(firsts)
     print("Follows:")
     print(follows)
 
+def mainExemplo():
+    global terminais, nao_terminais, producoes, simbolo_inicial
+    # Exemplo 1
+    terminais = [Simbolo('a'), Simbolo('('), Simbolo('[')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('S'), Simbolo('A')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('S')], [Simbolo('('), Simbolo('S'), Simbolo(')')]), Producao([Simbolo('S')], [Simbolo('['), Simbolo('S'), Simbolo(']')]),
+                 Producao([Simbolo('S')], [Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+
+    simbolo_inicial = Simbolo('S')  # Símbolo Inicial da Gramática
+    getAllFirst()
+    getAllFollow()
+    print("Firsts:")
+    for first in firsts:
+        print(first.nao_terminal)
+    print(firsts)
+    print("Follows:")
+    print(follows)
+    print("Tabela:")
+    print(tabela)
+
 #main()
-mainTeste() # função usada para testar first, follow e outras coisas. Preenche as variaveis sem uso da interface
+mainExemplo()
+#mainTeste() # função usada para testar first, follow e outras coisas. Preenche as variaveis sem uso da interface
 #getAllFirst()
 #getAllFollow()
