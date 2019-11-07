@@ -46,7 +46,8 @@ def checkGramatica():
     else:
         return [0,"Irrestrita"]
 
-def main():
+def construirGramaticaManual():
+    global nao_terminais, simbolo_inicial, terminais
     ################################
     # 1. Entrada de gramática          
     ################################
@@ -185,8 +186,6 @@ def main():
     # 2. Exibir gramática          
     ################################
 
-    transformacaoGLC()
-
     vetor_producoes_esquerdo = []
     vetor_producoes_direito = []
     string_producoes = ""
@@ -255,6 +254,9 @@ def main():
             print("Erro Estrutural")
             print("Cada simbolo nao-terminal precisa aparecer ao menos uma vez\n")
         break
+
+def main():
+    construirGramaticaManual()
     ################################
     # 4. Identificação da Gramática
     ################################
