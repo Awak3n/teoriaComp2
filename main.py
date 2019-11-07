@@ -609,7 +609,8 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
         except:
             pass
     if temVazio is None:
-        getFirstByNaoTerminal(producao.saida[posicao_da_producao])
+        first = getFirstByNaoTerminal(producao.saida[posicao_da_producao])
+        resultado.extend(first)
         firstRecursivo(posicao_da_producao, producao, resultado)
     return resultado
 
