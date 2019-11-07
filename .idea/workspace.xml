@@ -135,7 +135,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
-          <line>620</line>
+          <line>631</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -155,6 +155,7 @@
     <watches-manager>
       <configuration name="PythonConfigurationType">
         <watch expression="producoes" language="Python" />
+        <watch expression="firsts" language="Python" />
       </configuration>
     </watches-manager>
   </component>

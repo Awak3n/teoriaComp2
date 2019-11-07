@@ -604,7 +604,12 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
                     if producao_first.valor == '&':
                         temVazio = True
                 if not temVazio:
-                    resultado.extend(first.valor)
+                    string_resultado_list = []
+                    for r in resultado:
+                        string_resultado_list.append(r.valor)
+                    for f in first:
+                        if f.valor not in string_resultado_list:
+                            resultado.append(f)
                     tabela[producao.entrada[0].valor, producao_first.valor] = producao
                 else:
                     firstRecursivo(posicao_da_producao + 1, producao, first)
@@ -612,7 +617,12 @@ def firstRecursivo(posicao_da_producao, producao, resultado):
             pass
     if temVazio is None:
         first = getFirstByNaoTerminal(producao.saida[posicao_da_producao])
-        resultado.extend(first)
+        string_resultado_list = []
+        for r in resultado:
+            string_resultado_list.append(r.valor)
+        for f in first:
+            if f.valor not in string_resultado_list:
+                resultado.append(f)
         firstRecursivo(posicao_da_producao, producao, resultado)
     return resultado
 
@@ -888,7 +898,7 @@ def mainExemplo():
     nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]),
                  Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('B')])]
+                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]
     simbolo_inicial = Simbolo('A')
 
     for terminal in terminais:
