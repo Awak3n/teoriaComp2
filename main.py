@@ -386,8 +386,9 @@ def main():
 
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
-    fatoracao()
     recursaoAEsquerda()
+    fatoracao()
+
 
 def eLivre():
     '''Remove o símbolo vazio &'''
@@ -505,7 +506,6 @@ def fatoracao():
                 # começa a verificar
                 if producao.saida[0].tipo == 0:
                     terminais_found[simbolo][producao.saida[0].valor] += 1
-
                     # removendo ambiguidade e adicionando novos não terminais
     for simbolo in terminais_found:
         for terminal in terminais_found[simbolo]:
@@ -514,12 +514,12 @@ def fatoracao():
             if current >= 2:
                 print("Ambiguidade encontrada: Símbolo %s -> Terminal %s" % (simbolo, terminal))
                 producoes.append(
-                    Producao([insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal)],
+                    Producao([insereNovoNaoTerminal(simbolo, terminal)],
                              [Simbolo(terminal), simbolo]))
     print("\nProduções Resultantes: ", producoes, '\n')
 
 
-def insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, terminal):
+def insereNovoNaoTerminal(simbolo, terminal):
     '''Insere um novo NT, recebendo de parâmetro as produções, a lista de NT, o símbolo vítima e o terminal a ser destruído'''
     novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
     nao_terminais.append(novo_simbolo)
@@ -537,21 +537,51 @@ def insereNovoNaoTerminal(producoes, nao_terminais, simbolo_inicial, simbolo, te
 
 def recursaoAEsquerda():
     '''Remove recursão geral à esquerda'''
-    global producoes
-    # exemplo 5
-"""    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('c')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('B'), Simbolo('b')]), Producao([Simbolo('A')], [Simbolo('c'), Simbolo('A')]),
-                 Producao([Simbolo('A')], [Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('A'), Simbolo('b')])]  # Produções
-    simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
+    global producoes, nao_terminais
 
     print("\nEntrando na Remoção de Recursão à Esquerda\n")
-
-    # temporário
     print("\nProduções Iniciais: ", producoes, '\n')
-    print("Recursão encontrada: [B] -> [b, A]")
-    print("Produções Restantes:  [[A] -> [B, b], [B] -> [c, B, C], [B] -> [a, C], [C] -> [a, b, C], [C] -> [&]]\n")"""
+    #s_nt - itera os simbolos NT
+    #p_nt - itera as producoes NT
+    for s_nt in range(len(nao_terminais)):
+        for p_nt in range(int(s_nt+1)):
+            recursoesImediatas = []
+            p = 0
+            while p < len(producoes):
+                if producoes[p].entrada[0].valor == nao_terminais[s_nt].valor and producoes[p].saida[0].valor == nao_terminais[p_nt].valor:
+                    if producoes[p].saida[0].valor == nao_terminais[s_nt].valor:
+                        recursoesImediatas.append(producoes[p])
+                        del(producoes[p])
+                        p -= 1
+                    else:
+                        producaoExcluida = copy.deepcopy(producoes[p])
+                        producaoExcluida.saida = producaoExcluida.saida[1:]
+                        for producao in producoes:
+                            if producao.entrada[0].valor == nao_terminais[p_nt].valor:
+                                aux = copy.deepcopy(producao.saida)
+                                aux.extend(producaoExcluida.saida)
+                                producoes.append(Producao([Simbolo(nao_terminais[s_nt].valor)],aux))
+                        del(producoes[p])
+                        p -= 1
+                p += 1
+            #remove recursoes imediatas
+            if recursoesImediatas:
+                novo_simbolo = Simbolo(nao_terminais_default[len(nao_terminais)])
+                nao_terminais.append(novo_simbolo)
+                if '&' not in terminais_string_list:
+                    terminais.append('&')
+                for producao in producoes:
+                    if producao.entrada[0].valor == nao_terminais[s_nt].valor:
+                        producao.saida.append(novo_simbolo)
+                for producao in recursoesImediatas:
+                    producao.entrada = [novo_simbolo]
+                    nova_saida = producao.saida[1:]
+                    nova_saida.append(novo_simbolo)
+                    producao.saida = nova_saida
+                    producoes.append(producao)
+                producoes.append(Producao([novo_simbolo],[Simbolo('&')]))
 
+    print("\nProduções Resultantes: ", producoes, '\n')
 
 def getAllFirst():
     '''Faz as chamadas de funções para calcular os firsts de todos os nao terminais'''
@@ -825,20 +855,31 @@ def mainExemplo():
     # U = *FU | &
     # F = (E) | x
     # codificado
-    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-                Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-                Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    #terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    #nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    #producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+    #            Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+    #            Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    #simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # Gramática 3
+    # A = Ca | Bd
+    # B = Aa | Ce
+    # C = A | B | f
+    # codificado
+    terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+               Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+               Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+               Producao([Simbolo('C')], [Simbolo('f')])]
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
     # descomentar na hora da apresentação
-    #fatoracao()
-    #recursaoAEsquerda()
+    transformacaoGLC()
     getAllFirst()
     getAllFollow()
     print("\nFirsts:")
