@@ -786,11 +786,11 @@ def mainExemplo():
     # B => bCB | &
     # C => a
     # codificado:
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E = TG
     # G = +TG | &
@@ -809,23 +809,13 @@ def mainExemplo():
     # B = Aa | Ce
     # C = A | B | f
     # codificado
-    terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
-              Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
-              Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
-              Producao([Simbolo('C')], [Simbolo('f')])]
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
-    # Gramática 4
-    # A = CB
-    # B = bCB | &
-    # C = B
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
     # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]
-    # simbolo_inicial = Simbolo('A')
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+    #           Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+    #           Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+    #           Producao([Simbolo('C')], [Simbolo('f')])]
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
@@ -857,22 +847,29 @@ def reconhecimentoDeEntrada():
     #     entrada.append(char)
 
     # Pacote de exemplos para a Gramática 1
-    # Exemplo 1 (reconhece)
-    # entrada = ["a","b","a","b","a"]
-    # Exemplo 2 (não reconhece)
-    # entrada = ["a","b","b","b","a"]
-    # Exemplo 3 (reconhece)
+    # Exemplo 1 (não reconhece)
+    entrada = ["a","b","b","b","a"]
+    # Exemplo 2 (reconhece)
     # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    # Exemplo 4 (Gramatica 3) (nao reconhece)
-    # entrada = ["f","a"]
+    #
     # Pacote de exemplos para a Gramática 2
-    # Exemplo 1 (reconhece)
-    # entrada = ["(","x",")"]
-    # Exemplo 2 (não reconhece)
+    # Exemplo 1 (não reconhece)
     # entrada = ["x","+","+","x"]
-    # Exemplo 3 (reconhece)
+    # Exemplo 2 (reconhece)
     # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
-    
+    #
+    # Pacote de exemplos para a Gramática 3
+    # Exemplo 1 (não reconhece)
+    # entrada = ["f"]
+    # Exemplo 2 (reconhece)
+    # entrada = ["f","a","a","d"]
+    #
+    # Pacote de exemplos para a Gramática 4
+    # Exemplo 1 (não reconhece)
+    # entrada = ['b']
+    # Exemplo 2 (reconhece)
+    # entrada = ['b','b']
+
     entrada.append("$") 
     entrada.reverse() #revertendo para poder tratar como uma pilha
     pilha = ["$",simbolo_inicial.valor]
