@@ -907,6 +907,7 @@ def reconhecimentoDeEntrada():
             return
         table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
     print('\n' + table.draw() + '\n')
+    print("Entrada reconhecida com sucesso!")
 
 
 #main()
