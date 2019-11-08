@@ -143,9 +143,10 @@ def main():
             for letra in p_right:
                 if letra != '|':
                     if letra not in nao_terminais_default[:nr_nao_terminal]:
-                        #verifica se o lado direito abrange o alfabeto
-                        if letra not in string_terminal.replace("'",""): 
-                            sintaxe_error = True
+                        if letra != '&':
+                            #verifica se o lado direito abrange o alfabeto
+                            if letra not in string_terminal.replace("'",""): 
+                                sintaxe_error = True
             if sintaxe_error is True:
                 print("Erro de Sintaxe")
                 print("Não esqueça que os simbolos precisam estar entre\n%s e %s" % (string_nao_terminal,string_terminal))
@@ -678,6 +679,7 @@ def reconhecimentoDeEntrada():
             return
         table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
     print('\n' + table.draw() + '\n')
+    print("Entrada reconhecida com sucesso!")
 
 
 main()
