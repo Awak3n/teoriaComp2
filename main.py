@@ -86,6 +86,8 @@ def main():
             string_terminal += "'" + terminais_default[x] + "', "
     print(string_terminal)
 
+    inicializaSLR()
+
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
@@ -393,77 +395,11 @@ def main():
     for (keyPilha,keyEntrada) in tabela:
         tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
     print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
 
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
     fatoracao()
     recursaoAEsquerda()
-
-def eLivre():
-    '''Remove o símbolo vazio &'''
-    global producoes, terminais, nao_terminais, simbolo_inicial
-    # exemplo 2
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('a'), Simbolo('B')]),
-    #              Producao([Simbolo('A')], [Simbolo('b'), Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B'), Simbolo('b')]),
-    #              Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('&')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
-
-    print("\nEntrando na Remoção de & (&-livre)\n")
-
-    print("\nProduções Iniciais: ", producoes, '\n')
-    producoes_aux = []
-    tamanho = len(producoes)
-    for producao in producoes:
-        if producao.getValorDireito() == '&':
-            for p in range(tamanho):
-                if producao.getValorEsquerdo() in producoes[p].getValorDireito():
-                    producao_auxiliar = copy.deepcopy(producoes[p])
-                    producoes_aux.append(producao_auxiliar)
-                    for simbolo_entrada in producao.entrada:
-                        for simbolo_saida in producoes[p].saida:
-                            if simbolo_entrada.valor == simbolo_saida.valor:
-                                producoes[p].saida.remove(simbolo_saida)
-            producoes.remove(producao)
-    producoes.extend(producoes_aux)
-    print("\nProduções Resultantes: ", producoes, '\n')
-
-def remocaoUnitaria():
-    '''Remove produções unitárias'''
-    global producoes, terminais, nao_terminais, simbolo_inicial
-    # exemplo 3
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
-    print("\nEntrando na Remoção de Produções Unitárias\n")
-
-    print("\nProduções Iniciais: ", producoes, '\n')
-    valores_nao_terminais = []
-    for simbolo in nao_terminais:
-        valores_nao_terminais.append(simbolo.valor)
-    producoes_semelhantes = []
-    producoes_concluidas = []
-    for producao in producoes:
-        if producao.getValorEsquerdo() in valores_nao_terminais and producao.getValorEsquerdo() not in producoes_concluidas:
-            for prod in producoes:
-                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-                    producoes_semelhantes.append(prod)
-            for prod in producoes:
-                if producao.getValorEsquerdo() == prod.getValorDireito():
-                    for ps in producoes_semelhantes:
-                        producoes.append(Producao(prod.entrada, ps.saida))
-                    producoes.remove(prod)
-            producoes_concluidas.append(producao.getValorEsquerdo())
-        producoes_semelhantes = []
-    print("\nProduções Resultantes: ", producoes, '\n')
 
 def fatoracao():
     '''Realiza a fatoração'''
@@ -484,22 +420,6 @@ def fatoracao():
     print("\nEntrando na Fatoração\n")
 
     print("\nProduções Iniciais: ", producoes, '\n')
-    # não testado
-    # primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    # for producao in producoes:
-    #     if producao.getValorDireito()[0] in nao_terminais_default:
-    #         producoes_semelhantes = []
-    #         for prod in producoes:
-    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-    #                 producoes_semelhantes.append(prod)
-    #         for ps in producoes_semelhantes:
-    #             saida = copy.deepcopy(producao.saida)
-    #             del(saida[0])
-    #             ps_saida = copy.deepcopy(ps.saida)
-    #             ps_saida.extend(saida)
-    #             producoes.append(Producao(producao.entrada, ps_saida))
-    #         producoes.remove(producao)
-    # depois de pronto podemos finalmente fatorar
 
     print("\nProduções pronta para a fatoração: ", producoes, '\n')
 
@@ -705,8 +625,30 @@ def listaToStr(lista):
         listaStr += l
     return listaStr
 
+def geraGramaticaAumentada():
+    global nao_terminais, producoes
+    nao_terminais.append(Simbolo('Z'))
+    producoes.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
+
+def numeraProducoes():
+    global producoes
+    ordem = 0
+    for producao in producoes:
+        ordem += 1
+        producao.number = ordem
+
+def geraCanonicos():
+    global producoes
+    for producao in producoes:
+        producao.saida.insert(0, Simbolo('.'))
+
+def inicializaSLR():
+    numeraProducoes()
+    geraGramaticaAumentada()
+
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
-nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
 nao_terminais_string_list = []
@@ -725,6 +667,8 @@ class Simbolo(object):
             self.tipo = 0
         elif valor is None or valor == '$':
             self.tipo = None
+        elif valor == '.':
+            self.tipo == 2
         else:
             self.tipo = 1
     def __repr__(self):
@@ -739,9 +683,10 @@ class FirstOrFollow(object):
 
 class Producao(object):
     # A saida e a entrada serão um vetor simbolos
-    def __init__(self, entrada, saida=[Simbolo('&')]):
+    def __init__(self, entrada, saida=[Simbolo('&')], number=None):
         self.entrada = entrada
         self.saida = saida
+        self.number = number
 
     def getValorEsquerdo(self):
         """Retorna o valor esquerdo da produção"""
@@ -817,6 +762,8 @@ def mainExemplo():
     #           Producao([Simbolo('C')], [Simbolo('f')])]
     # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
+    inicializaSLR()
+
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
@@ -834,80 +781,6 @@ def mainExemplo():
     for (keyPilha,keyEntrada) in tabela:
         tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
     print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
-
-def reconhecimentoDeEntrada():
-    '''Realiza o reconhecimento de uma entrada'''
-    # Para utilizar os exemplos, basta comentar este código inicial 
-    # e descomentar o código do exemplo desejado para gramática escolhida
-    entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
-    entrada_manual = entrada_manual.replace(' ','')
-    entrada = []
-    for char in entrada_manual:
-        entrada.append(char)
-
-    # Pacote de exemplos para a Gramática 1
-    # Exemplo 1 (não reconhece)
-    # entrada = ["a","b","b","b","a"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    #
-    # Pacote de exemplos para a Gramática 2
-    # Exemplo 1 (não reconhece)
-    # entrada = ["x","+","+","x"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
-    #
-    # Pacote de exemplos para a Gramática 3
-    # Exemplo 1 (não reconhece)
-    # entrada = ["f"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["f","a","a","d"]
-
-    entrada.append("$") 
-    entrada.reverse() #revertendo para poder tratar como uma pilha
-    pilha = ["$",simbolo_inicial.valor]
-    saida = ""
-    table = texttable.Texttable()
-    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
-    
-    #loop principal de reconhecimento
-    while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
-        #Regras:
-        # Se tem NT na pilha, verifica na tabela se reconhece 
-        # e substituiu na pilha o NT pelo lado direito (pop NT e push lado direito)
-        topoP = len(pilha)-1
-        topoE = len(entrada)-1
-        if (pilha[topoP] in nao_terminais_default):
-            if (pilha[topoP],entrada[topoE]) in tabela:
-                saida = tabela[(pilha[topoP],entrada[topoE])] #producao
-                direito = copy.deepcopy(saida.saida)
-                pilha.pop()
-                if(direito[0].valor != "&"):
-                    direito.reverse()
-                    for elem in direito:
-                        pilha.append(elem.valor)
-            else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
-                return
-        elif (pilha[topoP] in terminais_default):
-            # Se tem T na pilha e o mesmo T na entrada, elimina ambos (reconhece)
-            if (pilha[topoP] == entrada[topoE]):
-                saida = ''
-                pilha.pop()
-                entrada.pop()
-            else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
-                return
-        else:
-            print(table.draw())
-            print("Erro: Entrada não reconhecida.")
-            return
-        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
-    print('\n' + table.draw() + '\n')
-
 
 #main()
 mainExemplo()
