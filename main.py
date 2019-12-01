@@ -86,7 +86,7 @@ def main():
             string_terminal += "'" + terminais_default[x] + "', "
     print(string_terminal)
 
-    inicializaSLR()
+
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
@@ -626,9 +626,11 @@ def listaToStr(lista):
     return listaStr
 
 def geraGramaticaAumentada():
-    global nao_terminais, producoes
+    global nao_terminais, nao_terminais_default, producoes, producoes_slr
     nao_terminais.append(Simbolo('Z'))
-    producoes.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
+    nao_terminais_default.append(Simbolo('Z'))
+    producoes_slr = copy.deepcopy(producoes)
+    producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
 
 def numeraProducoes():
     global producoes
@@ -643,9 +645,39 @@ def geraCanonicos():
         producao.saida.insert(0, Simbolo('.'))
 
 def inicializaSLR():
+    global estados
     numeraProducoes()
     geraGramaticaAumentada()
+    kernel = [producoes_slr[0]] # kernel é SEMPRE um vetor de produçoes. Ele é inicializado com a produção criada para o SLR
+    estados.append(Estado(0,kernel,[],getClosure(kernel))) # essa linha calcula o primeiro estado, a minha linha da tabela
 
+def getClosure(kernel): #kernel precisa ser uma lista de produções
+    closure = copy.deepcopy(kernel)
+    for producao in kernel:
+        closure = getClosureRecursivo(producao, closure)
+    return closure
+
+def getClosureRecursivo(producao, closure):
+    for s in range(len(producao.saida)):
+        if producao.saida[s].tipo == 2:
+            if s + 1 == len(producao.saida):
+                return closure
+            if producao.saida[s+1].tipo == 0:
+                return closure
+            if producao.saida[s+1].tipo == 1:
+                recem_adicionados = []
+                for producao_slr in producoes_slr:
+                    if producao_slr.entrada[0].valor == producao.saida[s+1].valor:
+                        ja_possui = False
+                        for c in closure:
+                            if repr(c) == repr(producao_slr):
+                                ja_possui = True;
+                        if not ja_possui:
+                            recem_adicionados.append(producoes_slr)
+                            closure.append(producao_slr)
+                for producao_add in recem_adicionados:
+                    closure = getClosureRecursivo(producao_add, closure)
+                return closure
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
@@ -654,11 +686,12 @@ nao_terminais = [] # Lista de Simbolos nao terminais
 nao_terminais_string_list = []
 terminais_string_list = []
 producoes = [] # Produções
+producoes_slr = [] # Produções para o SLR
 simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
 follows = [] # Follows
 tabela = {} # Tabela de Análise
-
+estados = [] # Estados
 class Simbolo(object):
     def __init__(self, valor=None):
         self.valor = valor
@@ -668,7 +701,7 @@ class Simbolo(object):
         elif valor is None or valor == '$':
             self.tipo = None
         elif valor == '.':
-            self.tipo == 2
+            self.tipo = 2
         else:
             self.tipo = 1
     def __repr__(self):
@@ -701,9 +734,37 @@ class Producao(object):
         for simbolo in self.saida:
             string += simbolo.valor
         return string
-    
+
+    def getAceita(self):
+        """Retorna o se a produção """
+        for s in range(len(self.saida)):
+            if self.saida[s].tipo == 2:
+                if s + 1 == len(self.saida):
+                    return True
+                else:
+                    return False
+
     def __repr__(self):
          return str(self.entrada)+' -> '+str(self.saida)
+
+class GoTo(object):
+    def __init__(self, simbolo, estado):
+        self.simbolo = simbolo
+        self.estado = estado #apesar do nome aqui é sempre um numero
+
+    def __repr__(self):
+        try:
+            return "(" + str(self.estado) + "," + str(self.simbolo) + ")"
+        except:
+            return ""
+
+
+class Estado(object):
+    def __init__(self, number, kernel, goto, closure=[]):
+        self.number = number
+        self.kernel = kernel
+        self.goto = goto # um estado pode ter mais de um goto, então goto é SEMPRE um vetor de GoTO
+        self.closure = closure
 
 def mainTeste():
     global terminais, nao_terminais, producoes, simbolo_inicial, tabela
@@ -734,7 +795,7 @@ def mainExemplo():
     terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
     nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
     producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
     simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E = TG
@@ -762,13 +823,13 @@ def mainExemplo():
     #           Producao([Simbolo('C')], [Simbolo('f')])]
     # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
-    inicializaSLR()
-
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
-    
+
+    inicializaSLR()
+
     transformacaoGLC()
     getAllFirst()
     getAllFollow()
