@@ -393,7 +393,7 @@ def main():
     for (keyPilha,keyEntrada) in tabela:
         tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
     print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
+    reconhecimentoDeEntradaPT()
 
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
@@ -468,19 +468,6 @@ def remocaoUnitaria():
 def fatoracao():
     '''Realiza a fatoração'''
     global producoes, nao_terminais, simbolo_inicial
-    # exemplo 4.1
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')]),
-    #              Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a'), Simbolo('A')]),
-    #              Producao([Simbolo('C')], [Simbolo('a'), Simbolo('B')])]  # Produções
-    # simbolo_inicial = Simbolo('C')  # Símbolo Inicial da Gramática
-
-    # exemplo 4.2
-    # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    # simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
     print("\nEntrando na Fatoração\n")
 
     print("\nProduções Iniciais: ", producoes, '\n')
@@ -716,6 +703,7 @@ simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
 follows = [] # Follows
 tabela = {} # Tabela de Análise
+tabelaSLR = {} # Tabela de Análise SLR
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -779,7 +767,7 @@ def mainTeste():
     print("Follows:")
     print(follows)
 
-def mainExemplo():
+def mainAnalisePreditivaTabular():
     global terminais, nao_terminais, producoes, simbolo_inicial
     # Gramática 1
     # A => CB
@@ -829,14 +817,14 @@ def mainExemplo():
     print(firsts)
     print("\nFollows:")
     print(follows)
-    print("\nTabela:") # montar isso bonitinho amanhã se sobrar tempo
+    print("\nTabela:")
     tabelaPretty = texttable.Texttable()
     for (keyPilha,keyEntrada) in tabela:
         tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
     print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
+    reconhecimentoDeEntradaPT()
 
-def reconhecimentoDeEntrada():
+def reconhecimentoDeEntradaPT():
     '''Realiza o reconhecimento de uma entrada'''
     # Para utilizar os exemplos, basta comentar este código inicial 
     # e descomentar o código do exemplo desejado para gramática escolhida
@@ -908,6 +896,63 @@ def reconhecimentoDeEntrada():
         table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
     print('\n' + table.draw() + '\n')
 
+def mainExemplo():
+    global terminais, nao_terminais, producoes, simbolo_inicial
+    # Gramática 1
+    # A => CB
+    # B => bCB | &
+    # C => a
+    # codificado:
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # Gramática 2
+    # E = TG
+    # G = +TG | &
+    # T = FU
+    # U = *FU | &
+    # F = (E) | x
+    # codificado
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+               Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+               Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # Gramática 3
+    # A = Ca | Bd
+    # B = Aa | Ce
+    # C = A | B | f
+    # codificado
+    # terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+    #           Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+    #           Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+    #           Producao([Simbolo('C')], [Simbolo('f')])]
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+    
+    transformacaoGLC()
+    getAllFirst()
+    getAllFollow()
+    print("\nFirsts:")
+    print(firsts)
+    print("\nFollows:")
+    print(follows)
+    print("\nTabela:")
+    tabelaPretty = texttable.Texttable()
+    # for (keyPilha,keyEntrada) in tabela:
+    #     tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
+    
+    # print(tabelaPretty.draw() + '\n')
+    
 
 #main()
 mainExemplo()
