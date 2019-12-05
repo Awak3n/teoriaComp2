@@ -643,6 +643,9 @@ def inicializaSLR():
     number = 1
     ponteiro = 0
     while len(gotos) > ponteiro:
+        kernel = getKernel(gotos[ponteiro])
+        closure = getClosure(kernel)
+        gotos.extend(getGoTos(closure, number))
         goto_repetido = False
         for estado in estados:
             if str(estado.kernel) == str(kernel):
@@ -652,14 +655,11 @@ def inicializaSLR():
         if not goto_repetido:
             estados.append(Estado(number, kernel, [gotos[ponteiro]], closure))
             number += 1
-        kernel = getKernel(gotos[ponteiro])
-        closure = getClosure(kernel)
-        gotos.extend(getGoTos(closure, number))
         ponteiro += 1
     for estado in estados:
         print(estado.number, end=" | ")
-        print(estado.kernel, end=" | ")
-        print(estado.goto, end=" | ")
+        print(estado.goto, end=" <- goto| ")
+        print(estado.kernel, end=" <- kernel | closure ->")
         print(estado.closure)
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
