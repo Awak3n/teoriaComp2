@@ -1,4 +1,4 @@
-import random as rng
+﻿import random as rng
 import copy
 import texttable
 
@@ -632,16 +632,34 @@ def geraCanonicos():
         producao.saida.insert(0, Simbolo('.'))
 
 def inicializaSLR():
-    global estados, producoes_slr
+    global estados, producoes_slr, gotos
     numeraProducoes()
     geraGramaticaAumentada()
     geraCanonicos()
     kernel = [producoes_slr[0]] # kernel é SEMPRE um vetor de produçoes. Ele é inicializado com a produção criada para o SLR
-    estados.append(Estado(0,kernel,[],getClosure(kernel))) # essa linha calcula o primeiro estado, a minha linha da tabela
+    closure = getClosure(kernel)
+    gotos.extend(getGoTos(closure, 0))
+    estados.append(Estado(0, kernel, [], closure))
+    number = 1
+    ponteiro = 0
+    while len(gotos) > ponteiro:
+        goto_repetido = False
+        for estado in estados:
+            if str(estado.kernel) == str(kernel):
+                goto_repetido = True
+                estado.goto.append(gotos[ponteiro])
+                break
+        if not goto_repetido:
+            estados.append(Estado(number, kernel, [gotos[ponteiro]], closure))
+            number += 1
+        kernel = getKernel(gotos[ponteiro])
+        closure = getClosure(kernel)
+        gotos.extend(getGoTos(closure, number))
+        ponteiro += 1
     for estado in estados:
-        print(estado.number)
-        print(estado.kernel)
-        print(estado.goto)
+        print(estado.number, end=" | ")
+        print(estado.kernel, end=" | ")
+        print(estado.goto, end=" | ")
         print(estado.closure)
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
@@ -673,6 +691,43 @@ def getClosureRecursivo(producao, closure):
                         closure = getClosureRecursivo(producao, closure)
                 return closure
 
+def getGoTos(closure, number):
+    global closures
+    add = True
+    goto_list = []
+    simbolos_valor = []
+    if len(closures) > 0:
+        for c in closures:
+            if str(closure) == str(c):
+                add = False
+    if add:
+        closures.append(closure)
+        for producao in closure:
+            for s in range(len(producao.saida)):
+                if producao.saida[s].tipo == 2:
+                    if s + 1 == len(producao.saida):
+                        break
+                    else:
+                        if producao.saida[s+1].valor not in simbolos_valor:
+                            simbolos_valor.append(producao.saida[s+1].valor)
+                            goto_list.append(GoTo(producao.saida[s+1], number))
+    return goto_list
+
+def getKernel(goto):
+    kernel = []
+    for estado in estados:
+        if estado.number == goto.estado:
+            for producao in estado.closure:
+                for s in range(len(producao.saida)):
+                    if producao.saida[s].tipo == 2:
+                        if s + 1 == len(producao.saida):
+                            break
+                        if producao.saida[s + 1].valor == goto.simbolo.valor:
+                            producao_add = copy.deepcopy(producao)
+                            producao_add.saida.insert(s, producao_add.saida.pop(s+1))
+                            kernel.append(producao_add)
+    return kernel
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
 terminais = [] # Lista de Simbolos terminais
@@ -687,6 +742,8 @@ follows = [] # Follows
 tabela = {} # Tabela de Análise PT
 tabelaSLR = {} # Tabela de Análise SLR
 estados = [] # Estados
+closures = [] # Lista de closures
+gotos = [] # Lista de GoTos
 
 class Simbolo(object):
     def __init__(self, valor=None):
