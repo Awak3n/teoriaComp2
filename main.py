@@ -789,24 +789,25 @@ def mainAnalisePreditivaTabular():
     # B => bCB | &
     # C => a
     # codificado:
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
-    # E = TG
-    # G = T + G | &
-    # T = FU
-    # U = F * U | &
-    # F = (E) | x
+    # E -> E + T | T
+    # T -> T * F | F
+    # F -> ( E ) | x
     # codificado
-    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('T'), Simbolo('+'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-    #            Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('F'), Simbolo('*'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-    #            Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
+                 Producao([Simbolo('E')], [Simbolo('T')]),
+                 Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
+                 Producao([Simbolo('T')], [Simbolo('F')]),
+                 Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
+                 Producao([Simbolo('U')], [Simbolo('x')]),]  # Produções
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
     # B = Aa | Ce
