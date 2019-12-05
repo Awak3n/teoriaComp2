@@ -621,23 +621,30 @@ def geraGramaticaAumentada():
     producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
 
 def numeraProducoes():
-    global producoes
+    global producoes_slr
     ordem = 0
-    for producao in producoes:
+    for producao in producoes_slr:
         ordem += 1
         producao.number = ordem
 
 def geraCanonicos():
-    global producoes
-    for producao in producoes:
+    global producoes_slr
+    for producao in producoes_slr:
         producao.saida.insert(0, Simbolo('.'))
 
 def inicializaSLR():
-    global estados
+    global estados, producoes_slr
     numeraProducoes()
     geraGramaticaAumentada()
+    geraCanonicos()
     kernel = [producoes_slr[0]] # kernel é SEMPRE um vetor de produçoes. Ele é inicializado com a produção criada para o SLR
     estados.append(Estado(0,kernel,[],getClosure(kernel))) # essa linha calcula o primeiro estado, a minha linha da tabela
+    for estado in estados:
+        print(estado.number)
+        print(estado.kernel)
+        print(estado.goto)
+        print(estado.closure)
+
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
     closure = copy.deepcopy(kernel)
@@ -664,7 +671,8 @@ def getClosureRecursivo(producao, closure):
                             recem_adicionados.append(producoes_slr)
                             closure.append(producao_slr)
                 for producao_add in recem_adicionados:
-                    closure = getClosureRecursivo(producao_add, closure)
+                    for producao in producao_add:
+                        closure = getClosureRecursivo(producao, closure)
                 return closure
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
@@ -781,24 +789,24 @@ def mainAnalisePreditivaTabular():
     # B => bCB | &
     # C => a
     # codificado:
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E = TG
-    # G = +TG | &
+    # G = T + G | &
     # T = FU
-    # U = *FU | &
+    # U = F * U | &
     # F = (E) | x
     # codificado
-    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-               Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-               Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('T'), Simbolo('+'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+    #            Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('F'), Simbolo('*'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+    #            Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
     # B = Aa | Ce
