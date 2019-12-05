@@ -806,7 +806,7 @@ def mainAnalisePreditivaTabular():
                  Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
                  Producao([Simbolo('T')], [Simbolo('F')]),
                  Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
-                 Producao([Simbolo('U')], [Simbolo('x')]),]  # Produções
+                 Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
     simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
