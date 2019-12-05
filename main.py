@@ -409,8 +409,6 @@ def fatoracao():
 
     print("\nProduções Iniciais: ", producoes, '\n')
 
-    print("\nProduções pronta para a fatoração: ", producoes, '\n')
-
     # procurando produções que possuam ambiguidade
     terminais_found = {}  # terminais encontrados para cada símbolo
     for simbolo in nao_terminais:
@@ -615,7 +613,8 @@ def listaToStr(lista):
 
 def geraGramaticaAumentada():
     global nao_terminais, nao_terminais_default, producoes, producoes_slr
-    nao_terminais.append(Simbolo('Z'))
+    # isso aqui tava dando problema no first e follow, poderia cagar o programa todo, comentei só por segurança
+    # nao_terminais.append(Simbolo('Z'))
     nao_terminais_default.append(Simbolo('Z'))
     producoes_slr = copy.deepcopy(producoes)
     producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
@@ -644,7 +643,6 @@ def inicializaSLR():
         print(estado.kernel)
         print(estado.goto)
         print(estado.closure)
-
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
     closure = copy.deepcopy(kernel)
@@ -826,16 +824,17 @@ def mainAnalisePreditivaTabular():
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
 
+    transformacaoGLC()
+
     inicializaSLR()
 
-    # transformacaoGLC()
-    # getAllFirst()
-    # getAllFollow()
-    # print("\nFirsts:")
-    # print(firsts)
-    # print("\nFollows:")
-    # print(follows)
-    # print("\nTabela:")
+    getAllFirst()
+    getAllFollow()
+    print("\nFirsts:")
+    print(firsts)
+    print("\nFollows:")
+    print(follows)
+    print("\nTabela:")
     
 
 def reconhecimentoDeEntradaPT():
