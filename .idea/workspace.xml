@@ -20,19 +20,8 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>inicializa</find>
-      <find>try</find>
-    </findStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-7" />
-    <option name="width" value="814" />
-    <option name="height" value="877" />
   </component>
   <component name="ProjectId" id="1TIOoetEgZNmuo67LRgZhBdxa8V" />
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -153,22 +142,22 @@
       <screen x="0" y="26" width="1366" height="742" />
     </state>
     <state x="36" y="26" width="1285" height="741" key="CommitChangelistDialog2/0.26.1366.742@0.26.1366.742" timestamp="1575516080598" />
-    <state width="1343" height="186" key="GridCell.Tab.0.bottom" timestamp="1575516255206">
+    <state width="658" height="185" key="GridCell.Tab.0.bottom" timestamp="1575593431542">
       <screen x="0" y="26" width="1366" height="742" />
     </state>
-    <state width="1343" height="186" key="GridCell.Tab.0.bottom/0.26.1366.742@0.26.1366.742" timestamp="1575516255206" />
-    <state width="1343" height="186" key="GridCell.Tab.0.center" timestamp="1575516255204">
+    <state width="658" height="185" key="GridCell.Tab.0.bottom/0.26.1366.742@0.26.1366.742" timestamp="1575593431542" />
+    <state width="658" height="185" key="GridCell.Tab.0.center" timestamp="1575593431518">
       <screen x="0" y="26" width="1366" height="742" />
     </state>
-    <state width="1343" height="186" key="GridCell.Tab.0.center/0.26.1366.742@0.26.1366.742" timestamp="1575516255204" />
-    <state width="1343" height="186" key="GridCell.Tab.0.left" timestamp="1575516255203">
+    <state width="658" height="185" key="GridCell.Tab.0.center/0.26.1366.742@0.26.1366.742" timestamp="1575593431518" />
+    <state width="658" height="185" key="GridCell.Tab.0.left" timestamp="1575593431503">
       <screen x="0" y="26" width="1366" height="742" />
     </state>
-    <state width="1343" height="186" key="GridCell.Tab.0.left/0.26.1366.742@0.26.1366.742" timestamp="1575516255203" />
-    <state width="1343" height="186" key="GridCell.Tab.0.right" timestamp="1575516255205">
+    <state width="658" height="185" key="GridCell.Tab.0.left/0.26.1366.742@0.26.1366.742" timestamp="1575593431503" />
+    <state width="658" height="185" key="GridCell.Tab.0.right" timestamp="1575593431523">
       <screen x="0" y="26" width="1366" height="742" />
     </state>
-    <state width="1343" height="186" key="GridCell.Tab.0.right/0.26.1366.742@0.26.1366.742" timestamp="1575516255205" />
+    <state width="658" height="185" key="GridCell.Tab.0.right/0.26.1366.742@0.26.1366.742" timestamp="1575593431523" />
     <state x="172" y="32" key="SettingsEditor" timestamp="1575503523296">
       <screen x="0" y="26" width="1366" height="742" />
     </state>
@@ -177,6 +166,10 @@
       <screen x="0" y="26" width="1366" height="742" />
     </state>
     <state x="339" y="225" key="com.intellij.ide.util.TipDialog/0.26.1366.742@0.26.1366.742" timestamp="1575502925693" />
+    <state x="378" y="147" width="670" height="676" key="search.everywhere.popup" timestamp="1575591164607">
+      <screen x="0" y="26" width="1366" height="742" />
+    </state>
+    <state x="378" y="147" width="670" height="676" key="search.everywhere.popup/0.26.1366.742@0.26.1366.742" timestamp="1575591164607" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
