@@ -924,7 +924,7 @@ def buildSLRTable():
 
     print("\n # CONFIGURAÇÃO DE OPERAÇÕES # \n")
     print(f' {"Relação":7} | {"Operação":8}')
-    opType = {"d":"DESVIO","r":"REDUZ","s":"ESMPILHA","a":"ACEITA"}
+    opType = {"d":"DESVIO","r":"REDUZ","s":"EMPILHA","a":"ACEITA"}
     tabelaSLR['$',1] = ['a',0]
     for k1,k2 in tabelaSLR:
         print(f' {k1} -> {k2:2} | {opType[tabelaSLR[k1,k2][0]]:2} ({tabelaSLR[k1,k2][0]}{tabelaSLR[k1,k2][1]})')
