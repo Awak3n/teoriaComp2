@@ -544,9 +544,12 @@ def getFirstByNaoTerminal(nao_terminal):
                 first.append(producao.saida[0])
                 tabela[producao.entrada[0].valor,producao.saida[0].valor] = producao
             elif producao.saida[0].valor in nao_terminais_string_list:
-                first = firstRecursivo(0, producao, first)
+                new_producao = copy.deepcopy(producao)
+                if producao.entrada[0].valor == producao.saida[0].valor:
+                    new_producao = copy.deepcopy(EncontreUmaProducaoQueNaoSejaEssa(producao))
+                first = firstRecursivo(0, new_producao, first)
                 for f in first:
-                    tabela[producao.entrada[0].valor,f.valor] = producao
+                    tabela[producao.entrada[0].valor,f.valor] = new_producao
     jaFoiAdiconado = False
     for f in firsts:
         if nao_terminal.valor == f.nao_terminal.valor:
@@ -554,6 +557,14 @@ def getFirstByNaoTerminal(nao_terminal):
     if not jaFoiAdiconado:
         firsts.append(FirstOrFollow(nao_terminal, first))
     return first
+
+def EncontreUmaProducaoQueNaoSejaEssa(prod):
+    '''Encontra outra produção para evitar recursividade no first'''
+    for produc in producoes:
+        if produc.entrada[0].valor == prod.entrada[0].valor:
+            if produc.getValorDireito() != prod.getValorDireito():
+                return produc
+    return prod
 
 def getAllFollow():
     """Faz as chamadas de funções para calcular os follows de todos os nao terminais"""
@@ -826,25 +837,25 @@ def mainAnalisePreditivaTabular():
     # B => bCB | &
     # C => a
     # codificado:
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E -> E + T | T
     # T -> T * F | F
     # F -> ( E ) | x
     # codificado
-    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
-    #              Producao([Simbolo('E')], [Simbolo('T')]),
-    #              Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
-    #              Producao([Simbolo('T')], [Simbolo('F')]),
-    #              Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
-    #              Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
+                 Producao([Simbolo('E')], [Simbolo('T')]),
+                 Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
+                 Producao([Simbolo('T')], [Simbolo('F')]),
+                 Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
+                 Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
     # B = Aa | Ce
@@ -862,8 +873,8 @@ def mainAnalisePreditivaTabular():
         terminais_string_list.append(terminal.valor)
     for nao_terminal in nao_terminais:
         nao_terminais_string_list.append(nao_terminal.valor)
-
-    transformacaoGLC()
+    
+    #transformacaoGLC()
 
     # Atualizando a lista de strings terminais e não terminais 
     for terminal in terminais:
@@ -872,7 +883,7 @@ def mainAnalisePreditivaTabular():
     for nao_terminal in nao_terminais:
         if nao_terminal.valor not in nao_terminais_string_list:
             nao_terminais_string_list.append(nao_terminal.valor)
-
+    
     inicializaSLR()
     
     getAllFirst()
@@ -902,7 +913,7 @@ def buildSLRTable():
                     for fof in follows:
                         if fof.nao_terminal.valor == prod.entrada[0].valor:
                             for symbol in fof.valor:
-                                tabelaSLR[symbol.valor, goto.estado] = ['r',prod.number] #REDUZ
+                                tabelaSLR[symbol.valor, estado.number] = ['r',prod.number] #REDUZ
 
     for k1,k2 in tabelaSLR:
         print(k1,k2,tabelaSLR[k1,k2])
@@ -914,35 +925,42 @@ def reconhecimentoDeEntradaSLR():
     entrada = []
     for char in entrada_manual:
         entrada.append(char)
-
     entrada.append("$")
     entrada.reverse()  # revertendo para poder tratar como uma pilha
     pilha = [0]
     saida = ""
-    table = texttable.Texttable()
-    table.add_rows([["Pilha", "Entrada", "Saída"], [listaToStr(pilha), listaToStr(entrada)[::-1], saida]])
+    # Formatando a exibição
+    tSizeP = len(entrada)*2 if len(entrada)*2 > 5 else 5
+    tSizeE = len(entrada) if len(entrada) > 7 else 7
+    print('\n # TABELA DE RECONHECIMENTO # \n')
+    print(f'| {"Pilha":{tSizeP}} | {"Entrada":{tSizeE}} | {"Saída":12s} |')
+    #print(f'| {listaToStr(pilha):<{tSizeP}} | {listaToStr(entrada)[::-1]:>{tSizeE}} | {saida:12} |')
     # loop principal de reconhecimento
-    # Regras:
+    while True:
+        topoP = len(pilha) - 1
+        topoE = len(entrada) - 1
+        strPilha = listaToStr(pilha)
+        strEntrada = listaToStr(entrada)[::-1]
+        # Regras:
         # Se tem NT na pilha, verifica se tem correspondência na tabela e:
         #   DESVIO
         # Se tem int na pilha, verfica se tem correspondência na tabela e:
         #   EMPILHA (sN)
         #   OU
         #   REDUZ   (rN)
-    while pilha[len(pilha) - 1] != "1" or entrada[len(entrada) - 1] != "$":
-        topoP = len(pilha) - 1
-        topoE = len(entrada) - 1
         if(pilha[topoP] in nao_terminais_string_list):
-            if (entrada[topoP], pilha[topoP-1]) in tabelaSLR:
+            if (pilha[topoP], pilha[topoP-1]) in tabelaSLR:
                 # tabelaSLR[goto.simbolo, goto.estado] = ['d', estado.number] #DESVIO
                 saida = "DESVIO(" + str(tabelaSLR[pilha[topoP],pilha[topoP-1]][1]) + ")"
-                pilha.append(tabelaSLR[pilha[topoP-1],pilha[topoP]][1])
+                pilha.append(tabelaSLR[pilha[topoP],pilha[topoP-1]][1])
             else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
+                print("\nERRO: Entrada não reconhecida.")
                 return
         else:
-            if (entrada[topoE], pilha[topoP]) in tabelaSLR:
+            if pilha[topoP] == 1 and entrada[topoE] == '$':
+                saida = "ACEITA"
+                break
+            elif (entrada[topoE], pilha[topoP]) in tabelaSLR:
                 op = tabelaSLR[entrada[topoE],pilha[topoP]][0] 
                 estado = tabelaSLR[entrada[topoE],pilha[topoP]][1]
                 saida = op + str(estado)
@@ -955,14 +973,15 @@ def reconhecimentoDeEntradaSLR():
                 else:
                     # tabelaSLR[symbol, goto.estado] = ['r',prod.number] #REDUZ
                     saida = "REDUZ(" + saida + ")"
-                    for i in range((len(producoes[estado].saida)-1)*2):
+                    reduce_magic = estado -1
+                    for i in range((len(producoes[estado-1].saida))*2):
                         pilha.pop()
+                    pilha.append(producoes[reduce_magic].entrada[0].valor)
             else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
+                print("\nERRO: Entrada não reconhecida.")
                 return
-        table.add_rows([["Pilha", "Entrada", "Saída"], [listaToStr(pilha), listaToStr(entrada)[::-1], saida]])
-    print('\n' + table.draw() + '\n')
+        print(f'| {strPilha:{tSizeP}} | {strEntrada:>{tSizeE}} | {saida:12} |')
+    print(f'| {strPilha:{tSizeP}} | {strEntrada:>{tSizeE}} | {saida:12} |')
 
 def reconhecimentoDeEntradaPT():
     '''Realiza o reconhecimento de uma entrada em APT'''
