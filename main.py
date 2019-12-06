@@ -629,18 +629,25 @@ def geraGramaticaAumentada():
     nao_terminais_default.append(Simbolo('Z'))
     producoes_slr = copy.deepcopy(producoes)
     producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
+    print("\n # GERA GRAMÁTICA AUMENTADA #")
+    for prod in producoes_slr:
+        print(prod)
 
 def numeraProducoes():
     global producao
+    print("\n # NUMERA PRODUÇÕES #")
     ordem = 0
     for producao in producoes:
         ordem += 1
         producao.number = ordem
+        print(producao.number,": ",producao)
 
 def geraCanonicos():
     global producoes_slr
+    print("\n # GERA ITENS CANÔNICOS #")
     for producao in producoes_slr:
         producao.saida.insert(0, Simbolo('.'))
+        print(producao)
 
 def inicializaSLR():
     global estados, producoes_slr, gotos
@@ -667,10 +674,11 @@ def inicializaSLR():
             estados.append(Estado(number, kernel, [gotos[ponteiro]], closure))
             number += 1
         ponteiro += 1
+    print("\n # GERA FUNÇÕES CLOSURE E GOTO # ")
     for estado in estados:
-        print(estado.number, end=" | ")
-        print(estado.goto, end=" <- goto | ")
-        print(estado.kernel, end=" <- kernel | closure ->")
+        print(estado.number, end=" |#| ")
+        print(estado.goto, end=" <- goto |#| ")
+        print(estado.kernel, end=" <- kernel |#| closure ->")
         print(estado.closure)
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
@@ -886,13 +894,13 @@ def mainAnalisePreditivaTabular():
     
     inicializaSLR()
     
+    print("\n # DEFININDO FIRST E FOLLOW PARA GERAR AS OPERAÇÕES #")
     getAllFirst()
     getAllFollow()
     print("\nFirsts:")
     print(firsts)
     print("\nFollows:")
     print(follows)
-    print("\nTabela:")
     buildSLRTable()
     reconhecimentoDeEntradaSLR()
 
@@ -902,7 +910,6 @@ def buildSLRTable():
     estadosSLR.pop(0)
     # Definição do DESVIO e funções EMPILHA / REDUZ
     for estado in estadosSLR:
-        print(estado.number, " | ", estado.kernel, " | ", estado.goto, " | ", estado.closure)
         for goto in estado.goto:
             if goto.simbolo.tipo == 1:
                 tabelaSLR[goto.simbolo.valor, goto.estado] = ['d', estado.number] #DESVIO
@@ -915,12 +922,16 @@ def buildSLRTable():
                             for symbol in fof.valor:
                                 tabelaSLR[symbol.valor, estado.number] = ['r',prod.number] #REDUZ
 
+    print("\n # CONFIGURAÇÃO DE OPERAÇÕES # \n")
+    print(f' {"Relação":7} | {"Operação":8}')
+    opType = {"d":"DESVIO","r":"REDUZ","s":"ESMPILHA","a":"ACEITA"}
+    tabelaSLR['$',1] = ['a',0]
     for k1,k2 in tabelaSLR:
-        print(k1,k2,tabelaSLR[k1,k2])
+        print(f' {k1} -> {k2:2} | {opType[tabelaSLR[k1,k2][0]]:2} ({tabelaSLR[k1,k2][0]}{tabelaSLR[k1,k2][1]})')
 
 def reconhecimentoDeEntradaSLR():
     '''Realiza o reconhecimento de uma entrada em SLR'''
-    entrada_manual = input("Insira a entrada a ser reconhecida: ")
+    entrada_manual = input("\nInsira a entrada a ser reconhecida: ")
     entrada_manual = entrada_manual.replace(' ', '')
     entrada = []
     for char in entrada_manual:
@@ -934,7 +945,6 @@ def reconhecimentoDeEntradaSLR():
     tSizeE = len(entrada) if len(entrada) > 7 else 7
     print('\n # TABELA DE RECONHECIMENTO # \n')
     print(f'| {"Pilha":{tSizeP}} | {"Entrada":{tSizeE}} | {"Saída":12s} |')
-    #print(f'| {listaToStr(pilha):<{tSizeP}} | {listaToStr(entrada)[::-1]:>{tSizeE}} | {saida:12} |')
     # loop principal de reconhecimento
     while True:
         topoP = len(pilha) - 1
@@ -992,24 +1002,6 @@ def reconhecimentoDeEntradaPT():
     entrada = []
     for char in entrada_manual:
         entrada.append(char)
-
-    # Pacote de exemplos para a Gramática 1
-    # Exemplo 1 (não reconhece)
-    # entrada = ["a","b","b","b","a"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    #
-    # Pacote de exemplos para a Gramática 2
-    # Exemplo 1 (não reconhece)
-    # entrada = ["x","+","+","x"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
-    #
-    # Pacote de exemplos para a Gramática 3
-    # Exemplo 1 (não reconhece)
-    # entrada = ["f"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["f","a","a","d"]
 
     entrada.append("$") 
     entrada.reverse() #revertendo para poder tratar como uma pilha
