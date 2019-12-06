@@ -616,10 +616,10 @@ def derivaVazio(simbolo):
                 deriva = True
     return deriva
 
-def listaToStr(lista):
+def listaToStr(lista,temEspaco):
     listaStr = ''
     for l in lista:
-        listaStr += str(l)
+        listaStr += str(l) + (' ' if temEspaco else '')
     return listaStr
 
 def geraGramaticaAumentada():
@@ -941,7 +941,7 @@ def reconhecimentoDeEntradaSLR():
     pilha = [0]
     saida = ""
     # Formatando a exibição
-    tSizeP = len(entrada)*2 if len(entrada)*2 > 5 else 5
+    tSizeP = len(entrada)*4 if len(entrada)*4 > 5 else 5
     tSizeE = len(entrada) if len(entrada) > 7 else 7
     print('\n # TABELA DE RECONHECIMENTO # \n')
     print(f'| {"Pilha":{tSizeP}} | {"Entrada":{tSizeE}} | {"Saída":12s} |')
@@ -949,8 +949,8 @@ def reconhecimentoDeEntradaSLR():
     while True:
         topoP = len(pilha) - 1
         topoE = len(entrada) - 1
-        strPilha = listaToStr(pilha)
-        strEntrada = listaToStr(entrada)[::-1]
+        strPilha = listaToStr(pilha,True)
+        strEntrada = listaToStr(entrada,False)[::-1]
         # Regras:
         # Se tem NT na pilha, verifica se tem correspondência na tabela e:
         #   DESVIO
@@ -1008,7 +1008,7 @@ def reconhecimentoDeEntradaPT():
     pilha = ["$",simbolo_inicial.valor]
     saida = ""
     table = texttable.Texttable()
-    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha,False),listaToStr(entrada,False)[::-1],saida]])
     
     #loop principal de reconhecimento
     while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
@@ -1044,7 +1044,7 @@ def reconhecimentoDeEntradaPT():
             print(table.draw())
             print("Erro: Entrada não reconhecida.")
             return
-        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha,False),listaToStr(entrada,False)[::-1],saida]])
     print('\n' + table.draw() + '\n')
 
 def mainExemplo():
