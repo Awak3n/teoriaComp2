@@ -1,4 +1,4 @@
-import random as rng
+﻿import random as rng
 import copy
 import texttable
 
@@ -85,6 +85,8 @@ def main():
         else:
             string_terminal += "'" + terminais_default[x] + "', "
     print(string_terminal)
+
+
 
     for terminal in terminais:
         terminais_string_list.append(terminal.valor)
@@ -382,126 +384,19 @@ def main():
                 for k,v in value.items():
                     print("    Lendo '%s' irá para => %s" % (k,v))
     
-    getAllFirst()
-    getAllFollow()
-    print("\nFirsts:")
-    print(firsts)
-    print("\nFollows:")
-    print(follows)
-    print("\nTabela:") # montar isso bonitinho amanhã se sobrar tempo
-    tabelaPretty = texttable.Texttable()
-    for (keyPilha,keyEntrada) in tabela:
-        tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
-    print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
+    mainAnalisePreditivaTabular()
 
 def transformacaoGLC():
     '''Método contendo todas as transformações, para debbuging'''
     fatoracao()
     recursaoAEsquerda()
 
-def eLivre():
-    '''Remove o símbolo vazio &'''
-    global producoes, terminais, nao_terminais, simbolo_inicial
-    # exemplo 2
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('a'), Simbolo('B')]),
-    #              Producao([Simbolo('A')], [Simbolo('b'), Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('B'), Simbolo('b')]),
-    #              Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]),
-    #              Producao([Simbolo('B')], [Simbolo('&')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
-
-    print("\nEntrando na Remoção de & (&-livre)\n")
-
-    print("\nProduções Iniciais: ", producoes, '\n')
-    producoes_aux = []
-    tamanho = len(producoes)
-    for producao in producoes:
-        if producao.getValorDireito() == '&':
-            for p in range(tamanho):
-                if producao.getValorEsquerdo() in producoes[p].getValorDireito():
-                    producao_auxiliar = copy.deepcopy(producoes[p])
-                    producoes_aux.append(producao_auxiliar)
-                    for simbolo_entrada in producao.entrada:
-                        for simbolo_saida in producoes[p].saida:
-                            if simbolo_entrada.valor == simbolo_saida.valor:
-                                producoes[p].saida.remove(simbolo_saida)
-            producoes.remove(producao)
-    producoes.extend(producoes_aux)
-    print("\nProduções Resultantes: ", producoes, '\n')
-
-def remocaoUnitaria():
-    '''Remove produções unitárias'''
-    global producoes, terminais, nao_terminais, simbolo_inicial
-    # exemplo 3
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('B')], [Simbolo('b'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]),
-    #              Producao([Simbolo('A')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('B')  # Símbolo Inicial da Gramática
-    print("\nEntrando na Remoção de Produções Unitárias\n")
-
-    print("\nProduções Iniciais: ", producoes, '\n')
-    valores_nao_terminais = []
-    for simbolo in nao_terminais:
-        valores_nao_terminais.append(simbolo.valor)
-    producoes_semelhantes = []
-    producoes_concluidas = []
-    for producao in producoes:
-        if producao.getValorEsquerdo() in valores_nao_terminais and producao.getValorEsquerdo() not in producoes_concluidas:
-            for prod in producoes:
-                if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-                    producoes_semelhantes.append(prod)
-            for prod in producoes:
-                if producao.getValorEsquerdo() == prod.getValorDireito():
-                    for ps in producoes_semelhantes:
-                        producoes.append(Producao(prod.entrada, ps.saida))
-                    producoes.remove(prod)
-            producoes_concluidas.append(producao.getValorEsquerdo())
-        producoes_semelhantes = []
-    print("\nProduções Resultantes: ", producoes, '\n')
-
 def fatoracao():
     '''Realiza a fatoração'''
     global producoes, nao_terminais, simbolo_inicial
-    # exemplo 4.1
-    # terminais = [Simbolo('a'), Simbolo('b')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('a'), Simbolo('A')]), Producao([Simbolo('A')], [Simbolo('a')]),
-    #              Producao([Simbolo('B')], [Simbolo('b')]), Producao([Simbolo('C')], [Simbolo('a'), Simbolo('A')]),
-    #              Producao([Simbolo('C')], [Simbolo('a'), Simbolo('B')])]  # Produções
-    # simbolo_inicial = Simbolo('C')  # Símbolo Inicial da Gramática
-
-    # exemplo 4.2
-    # terminais = [Simbolo('a'),Simbolo('b')] # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'),Simbolo('B'),Simbolo('C')] # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')],[Simbolo('B'),Simbolo('b')]),Producao([Simbolo('A')],[Simbolo('a'),Simbolo('B')]),Producao([Simbolo('B')],[Simbolo('a')]),Producao([Simbolo('C')],[Simbolo('b')]), Producao([Simbolo('C')],[Simbolo('a'),Simbolo('B')])] # Produções
-    # simbolo_inicial = Simbolo('A') # Símbolo Inicial da Gramática
     print("\nEntrando na Fatoração\n")
 
     print("\nProduções Iniciais: ", producoes, '\n')
-    # não testado
-    # primeiro precisamos substituir todas expressoes que começam com um simbolo nao-terminal
-    # for producao in producoes:
-    #     if producao.getValorDireito()[0] in nao_terminais_default:
-    #         producoes_semelhantes = []
-    #         for prod in producoes:
-    #             if prod.getValorEsquerdo() == producao.getValorEsquerdo():
-    #                 producoes_semelhantes.append(prod)
-    #         for ps in producoes_semelhantes:
-    #             saida = copy.deepcopy(producao.saida)
-    #             del(saida[0])
-    #             ps_saida = copy.deepcopy(ps.saida)
-    #             ps_saida.extend(saida)
-    #             producoes.append(Producao(producao.entrada, ps_saida))
-    #         producoes.remove(producao)
-    # depois de pronto podemos finalmente fatorar
-
-    print("\nProduções pronta para a fatoração: ", producoes, '\n')
 
     # procurando produções que possuam ambiguidade
     terminais_found = {}  # terminais encontrados para cada símbolo
@@ -638,9 +533,12 @@ def getFirstByNaoTerminal(nao_terminal):
                 first.append(producao.saida[0])
                 tabela[producao.entrada[0].valor,producao.saida[0].valor] = producao
             elif producao.saida[0].valor in nao_terminais_string_list:
-                first = firstRecursivo(0, producao, first)
+                new_producao = copy.deepcopy(producao)
+                if producao.entrada[0].valor == producao.saida[0].valor:
+                    new_producao = copy.deepcopy(EncontreUmaProducaoQueNaoSejaEssa(producao))
+                first = firstRecursivo(0, new_producao, first)
                 for f in first:
-                    tabela[producao.entrada[0].valor,f.valor] = producao
+                    tabela[producao.entrada[0].valor,f.valor] = new_producao
     jaFoiAdiconado = False
     for f in firsts:
         if nao_terminal.valor == f.nao_terminal.valor:
@@ -648,6 +546,14 @@ def getFirstByNaoTerminal(nao_terminal):
     if not jaFoiAdiconado:
         firsts.append(FirstOrFollow(nao_terminal, first))
     return first
+
+def EncontreUmaProducaoQueNaoSejaEssa(prod):
+    '''Encontra outra produção para evitar recursividade no first'''
+    for produc in producoes:
+        if produc.entrada[0].valor == prod.entrada[0].valor:
+            if produc.getValorDireito() != prod.getValorDireito():
+                return produc
+    return prod
 
 def getAllFollow():
     """Faz as chamadas de funções para calcular os follows de todos os nao terminais"""
@@ -699,23 +605,152 @@ def derivaVazio(simbolo):
                 deriva = True
     return deriva
 
-def listaToStr(lista):
+def listaToStr(lista,temEspaco):
     listaStr = ''
     for l in lista:
-        listaStr += l
+        listaStr += str(l) + (' ' if temEspaco else '')
     return listaStr
 
+def geraGramaticaAumentada():
+    global nao_terminais, nao_terminais_default, producoes, producoes_slr
+    # isso aqui tava dando problema no first e follow, poderia cagar o programa todo, comentei só por segurança
+    # nao_terminais.append(Simbolo('Z'))
+    nao_terminais_default.append(Simbolo('Z'))
+    producoes_slr = copy.deepcopy(producoes)
+    producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
+    print("\n # GERA GRAMÁTICA AUMENTADA #")
+    for prod in producoes_slr:
+        print(prod)
+
+def numeraProducoes():
+    global producao
+    print("\n # NUMERA PRODUÇÕES #")
+    ordem = 0
+    for producao in producoes:
+        ordem += 1
+        producao.number = ordem
+        print(producao.number,": ",producao)
+
+def geraCanonicos():
+    global producoes_slr
+    print("\n # GERA ITENS CANÔNICOS #")
+    for producao in producoes_slr:
+        producao.saida.insert(0, Simbolo('.'))
+        print(producao)
+
+def inicializaSLR():
+    global estados, producoes_slr, gotos
+    numeraProducoes()
+    geraGramaticaAumentada()
+    geraCanonicos()
+    kernel = [producoes_slr[0]] # kernel é SEMPRE um vetor de produçoes. Ele é inicializado com a produção criada para o SLR
+    closure = getClosure(kernel)
+    gotos.extend(getGoTos(closure, 0))
+    estados.append(Estado(0, kernel, [], closure))
+    number = 1
+    ponteiro = 0
+    while len(gotos) > ponteiro:
+        kernel = getKernel(gotos[ponteiro])
+        closure = getClosure(kernel)
+        gotos.extend(getGoTos(closure, number))
+        goto_repetido = False
+        for estado in estados:
+            if str(estado.kernel) == str(kernel):
+                goto_repetido = True
+                estado.goto.append(gotos[ponteiro])
+                break
+        if not goto_repetido:
+            estados.append(Estado(number, kernel, [gotos[ponteiro]], closure))
+            number += 1
+        ponteiro += 1
+    print("\n # GERA FUNÇÕES CLOSURE E GOTO # ")
+    for estado in estados:
+        print(estado.number, end=" |#| ")
+        print(estado.goto, end=" <- goto |#| ")
+        print(estado.kernel, end=" <- kernel |#| closure ->")
+        print(estado.closure)
+
+def getClosure(kernel): #kernel precisa ser uma lista de produções
+    closure = copy.deepcopy(kernel)
+    for producao in kernel:
+        closure = getClosureRecursivo(producao, closure)
+    return closure
+
+def getClosureRecursivo(producao, closure):
+    for s in range(len(producao.saida)):
+        if producao.saida[s].tipo == 2:
+            if s + 1 == len(producao.saida):
+                return closure
+            if producao.saida[s+1].tipo == 0:
+                return closure
+            if producao.saida[s+1].tipo == 1:
+                recem_adicionados = []
+                for producao_slr in producoes_slr:
+                    if producao_slr.entrada[0].valor == producao.saida[s+1].valor:
+                        ja_possui = False
+                        for c in closure:
+                            if repr(c) == repr(producao_slr):
+                                ja_possui = True
+                        if not ja_possui:
+                            recem_adicionados.append(producao_slr)
+                            closure.append(producao_slr)
+                for producao in recem_adicionados:
+                    closure = getClosureRecursivo(producao, closure)
+                return closure
+
+def getGoTos(closure, number):
+    global closures
+    add = True
+    goto_list = []
+    simbolos_valor = []
+    if len(closures) > 0:
+        for c in closures:
+            if str(closure) == str(c):
+                add = False
+    if add:
+        closures.append(closure)
+        for producao in closure:
+            for s in range(len(producao.saida)):
+                if producao.saida[s].tipo == 2:
+                    if s + 1 == len(producao.saida):
+                        break
+                    else:
+                        if producao.saida[s+1].valor not in simbolos_valor:
+                            simbolos_valor.append(producao.saida[s+1].valor)
+                            goto_list.append(GoTo(producao.saida[s+1], number))
+    return goto_list
+
+def getKernel(goto):
+    kernel = []
+    for estado in estados:
+        if estado.number == goto.estado:
+            for producao in estado.closure:
+                for s in range(len(producao.saida)):
+                    if producao.saida[s].tipo == 2:
+                        if s + 1 == len(producao.saida):
+                            break
+                        if producao.saida[s + 1].valor == goto.simbolo.valor:
+                            producao_add = copy.deepcopy(producao)
+                            producao_add.saida.insert(s, producao_add.saida.pop(s+1))
+                            kernel.append(producao_add)
+    return kernel
+
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
-nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
 terminais = [] # Lista de Simbolos terminais
 nao_terminais = [] # Lista de Simbolos nao terminais
 nao_terminais_string_list = []
 terminais_string_list = []
 producoes = [] # Produções
+producoes_slr = [] # Produções para o SLR
 simbolo_inicial = None # Símbolo Inicial da Gramática
 firsts = [] # Firsts
 follows = [] # Follows
-tabela = {} # Tabela de Análise
+tabela = {} # Tabela de Análise PT
+tabelaSLR = {} # Tabela de Análise SLR
+estados = [] # Estados
+closures = [] # Lista de closures
+gotos = [] # Lista de GoTos
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -725,6 +760,10 @@ class Simbolo(object):
             self.tipo = 0
         elif valor is None or valor == '$':
             self.tipo = None
+        elif valor == '.':
+            self.tipo = 2
+        elif valor is int:
+            self.tipo = 3
         else:
             self.tipo = 1
     def __repr__(self):
@@ -739,9 +778,10 @@ class FirstOrFollow(object):
 
 class Producao(object):
     # A saida e a entrada serão um vetor simbolos
-    def __init__(self, entrada, saida=[Simbolo('&')]):
+    def __init__(self, entrada, saida=[Simbolo('&')], number=None):
         self.entrada = entrada
         self.saida = saida
+        self.number = number
 
     def getValorEsquerdo(self):
         """Retorna o valor esquerdo da produção"""
@@ -756,53 +796,62 @@ class Producao(object):
         for simbolo in self.saida:
             string += simbolo.valor
         return string
-    
+
+    def getAceita(self):
+        """Retorna o se a produção """
+        for s in range(len(self.saida)):
+            if self.saida[s].tipo == 2:
+                if s + 1 == len(self.saida):
+                    return True
+                else:
+                    return False
+
     def __repr__(self):
          return str(self.entrada)+' -> '+str(self.saida)
 
-def mainTeste():
-    global terminais, nao_terminais, producoes, simbolo_inicial, tabela
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                 Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    for terminal in terminais:
-        terminais_string_list.append(terminal.valor)
-    for nao_terminal in nao_terminais:
-        nao_terminais_string_list.append(nao_terminal.valor)
+class GoTo(object):
+    def __init__(self, simbolo, estado):
+        self.simbolo = simbolo
+        self.estado = estado #apesar do nome aqui é sempre um numero
 
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
-    getAllFirst()
-    getAllFollow()
-    print("Firsts:")
-    print(firsts)
-    print("Follows:")
-    print(follows)
+    def __repr__(self):
+        try:
+            return "(" + str(self.estado) + "," + str(self.simbolo) + ")"
+        except:
+            return ""
 
-def mainExemplo():
+class Estado(object):
+    def __init__(self, number, kernel, goto, closure=[]):
+        self.number = number
+        self.kernel = kernel
+        self.goto = goto # um estado pode ter mais de um goto, então goto é SEMPRE um vetor de GoTO
+        self.closure = closure
+
+def mainAnalisePreditivaTabular():
     global terminais, nao_terminais, producoes, simbolo_inicial
     # Gramática 1
     # A => CB
     # B => bCB | &
     # C => a
     # codificado:
-    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
-    # E = TG
-    # G = +TG | &
-    # T = FU
-    # U = *FU | &
-    # F = (E) | x
+    # E -> E + T | T
+    # T -> T * F | F
+    # F -> ( E ) | x
     # codificado
-    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
-    #            Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
-    #            Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
+    #              Producao([Simbolo('E')], [Simbolo('T')]),
+    #              Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
+    #              Producao([Simbolo('T')], [Simbolo('F')]),
+    #              Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
+    #              Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
     # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
@@ -823,21 +872,118 @@ def mainExemplo():
         nao_terminais_string_list.append(nao_terminal.valor)
     
     transformacaoGLC()
+
+    # Atualizando a lista de strings terminais e não terminais 
+    for terminal in terminais:
+        if terminal.valor not in terminais_string_list:
+            terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        if nao_terminal.valor not in nao_terminais_string_list:
+            nao_terminais_string_list.append(nao_terminal.valor)
+    
+    inicializaSLR()
+    
+    print("\n # DEFININDO FIRST E FOLLOW PARA GERAR AS OPERAÇÕES #")
     getAllFirst()
     getAllFollow()
     print("\nFirsts:")
     print(firsts)
     print("\nFollows:")
     print(follows)
-    print("\nTabela:") # montar isso bonitinho amanhã se sobrar tempo
-    tabelaPretty = texttable.Texttable()
-    for (keyPilha,keyEntrada) in tabela:
-        tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
-    print(tabelaPretty.draw() + '\n')
-    reconhecimentoDeEntrada()
+    buildSLRTable()
+    reconhecimentoDeEntradaSLR()
 
-def reconhecimentoDeEntrada():
-    '''Realiza o reconhecimento de uma entrada'''
+def buildSLRTable():
+    '''Método que constrói a tabela para reconhecimento SLR'''
+    estadosSLR = copy.deepcopy(estados)
+    estadosSLR.pop(0)
+    # Definição do DESVIO e funções EMPILHA / REDUZ
+    for estado in estadosSLR:
+        for goto in estado.goto:
+            if goto.simbolo.tipo == 1:
+                tabelaSLR[goto.simbolo.valor, goto.estado] = ['d', estado.number] #DESVIO
+            else:
+                tabelaSLR[goto.simbolo.valor, goto.estado] = ['s', estado.number] #EMPILHA
+        for prod in estado.kernel:
+            if prod.entrada[0].valor in nao_terminais_string_list and prod.saida[len(prod.saida)-1].tipo == 2:
+                    for fof in follows:
+                        if fof.nao_terminal.valor == prod.entrada[0].valor:
+                            for symbol in fof.valor:
+                                tabelaSLR[symbol.valor, estado.number] = ['r',prod.number] #REDUZ
+
+    print("\n # CONFIGURAÇÃO DE OPERAÇÕES # \n")
+    print(f' {"Relação":7} | {"Operação":8}')
+    opType = {"d":"DESVIO","r":"REDUZ","s":"EMPILHA","a":"ACEITA"}
+    tabelaSLR['$',1] = ['a',0]
+    for k1,k2 in tabelaSLR:
+        print(f' {k1} -> {k2:2} | {opType[tabelaSLR[k1,k2][0]]:2} ({tabelaSLR[k1,k2][0]}{tabelaSLR[k1,k2][1]})')
+
+def reconhecimentoDeEntradaSLR():
+    '''Realiza o reconhecimento de uma entrada em SLR'''
+    entrada_manual = input("\nInsira a entrada a ser reconhecida: ")
+    entrada_manual = entrada_manual.replace(' ', '')
+    entrada = []
+    for char in entrada_manual:
+        entrada.append(char)
+    entrada.append("$")
+    entrada.reverse()  # revertendo para poder tratar como uma pilha
+    pilha = [0]
+    saida = ""
+    # Formatando a exibição
+    tSizeP = len(entrada)*4 if len(entrada)*4 > 5 else 5
+    tSizeE = len(entrada) if len(entrada) > 7 else 7
+    print('\n # TABELA DE RECONHECIMENTO # \n')
+    print(f'| {"Pilha":{tSizeP}} | {"Entrada":{tSizeE}} | {"Saída":12s} |')
+    # loop principal de reconhecimento
+    while True:
+        topoP = len(pilha) - 1
+        topoE = len(entrada) - 1
+        strPilha = listaToStr(pilha,True)
+        strEntrada = listaToStr(entrada,False)[::-1]
+        # Regras:
+        # Se tem NT na pilha, verifica se tem correspondência na tabela e:
+        #   DESVIO
+        # Se tem int na pilha, verfica se tem correspondência na tabela e:
+        #   EMPILHA (sN)
+        #   OU
+        #   REDUZ   (rN)
+        if(pilha[topoP] in nao_terminais_string_list):
+            if (pilha[topoP], pilha[topoP-1]) in tabelaSLR:
+                # tabelaSLR[goto.simbolo, goto.estado] = ['d', estado.number] #DESVIO
+                saida = "DESVIO(" + str(tabelaSLR[pilha[topoP],pilha[topoP-1]][1]) + ")"
+                pilha.append(tabelaSLR[pilha[topoP],pilha[topoP-1]][1])
+            else:
+                print("\nERRO: Entrada não reconhecida.")
+                return
+        else:
+            if pilha[topoP] == 1 and entrada[topoE] == '$':
+                saida = "ACEITA"
+                break
+            elif (entrada[topoE], pilha[topoP]) in tabelaSLR:
+                op = tabelaSLR[entrada[topoE],pilha[topoP]][0] 
+                estado = tabelaSLR[entrada[topoE],pilha[topoP]][1]
+                saida = op + str(estado)
+                if op == 's':  
+                    # tabelaSLR[goto.simbolo, goto.estado] = ['s', estado.number] #EMPILHA
+                    saida = "EMPILHA(" + saida + ")"
+                    pilha.append(entrada[topoE])
+                    entrada.pop()
+                    pilha.append(estado)
+                else:
+                    # tabelaSLR[symbol, goto.estado] = ['r',prod.number] #REDUZ
+                    saida = "REDUZ(" + saida + ")"
+                    reduce_magic = estado -1
+                    for i in range((len(producoes[estado-1].saida))*2):
+                        pilha.pop()
+                    pilha.append(producoes[reduce_magic].entrada[0].valor)
+            else:
+                print("\nERRO: Entrada não reconhecida.")
+                return
+        print(f'| {strPilha:{tSizeP}} | {strEntrada:>{tSizeE}} | {saida:12} |')
+    print(f'| {strPilha:{tSizeP}} | {strEntrada:>{tSizeE}} | {saida:12} |')
+
+def reconhecimentoDeEntradaPT():
+    '''Realiza o reconhecimento de uma entrada em APT'''
     # Para utilizar os exemplos, basta comentar este código inicial 
     # e descomentar o código do exemplo desejado para gramática escolhida
     entrada_manual = input("Insira a entrada a ser reconhecida (sem espaços): ")
@@ -846,30 +992,12 @@ def reconhecimentoDeEntrada():
     for char in entrada_manual:
         entrada.append(char)
 
-    # Pacote de exemplos para a Gramática 1
-    # Exemplo 1 (não reconhece)
-    # entrada = ["a","b","b","b","a"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["a","b","a","b","a","b","a","b","a","b","a"]
-    #
-    # Pacote de exemplos para a Gramática 2
-    # Exemplo 1 (não reconhece)
-    # entrada = ["x","+","+","x"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["(","x",")","+","(","x","*","(","x","+","x",")",")","*","x"]
-    #
-    # Pacote de exemplos para a Gramática 3
-    # Exemplo 1 (não reconhece)
-    # entrada = ["f"]
-    # Exemplo 2 (reconhece)
-    # entrada = ["f","a","a","d"]
-
     entrada.append("$") 
     entrada.reverse() #revertendo para poder tratar como uma pilha
     pilha = ["$",simbolo_inicial.valor]
     saida = ""
     table = texttable.Texttable()
-    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+    table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha,False),listaToStr(entrada,False)[::-1],saida]])
     
     #loop principal de reconhecimento
     while pilha[len(pilha)-1] != "$" or entrada[len(entrada)-1] != "$":
@@ -905,10 +1033,67 @@ def reconhecimentoDeEntrada():
             print(table.draw())
             print("Erro: Entrada não reconhecida.")
             return
-        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha),listaToStr(entrada)[::-1],saida]])
+        table.add_rows([["Pilha", "Entrada", "Saída"],[listaToStr(pilha,False),listaToStr(entrada,False)[::-1],saida]])
     print('\n' + table.draw() + '\n')
     print("Entrada reconhecida com sucesso!")
 
+def mainExemplo():
+    global terminais, nao_terminais, producoes, simbolo_inicial
+    # Gramática 1
+    # A => CB
+    # B => bCB | &
+    # C => a
+    # codificado:
+    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    # Gramática 2
+    # E = TG
+    # G = +TG | &
+    # T = FU
+    # U = *FU | &
+    # F = (E) | x
+    # codificado
+    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('E'), Simbolo('G'), Simbolo('T'), Simbolo('U'), Simbolo('F'),]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('+'), Simbolo('T'), Simbolo('G')]), Producao([Simbolo('G')], [Simbolo('&')]),
+               Producao([Simbolo('T')], [Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('*'), Simbolo('F'), Simbolo('U')]), Producao([Simbolo('U')], [Simbolo('&')]),
+               Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]), Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # Gramática 3
+    # A = Ca | Bd
+    # B = Aa | Ce
+    # C = A | B | f
+    # codificado
+    # terminais = [Simbolo('a'), Simbolo('d'), Simbolo('e'), Simbolo('f')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('a')]), Producao([Simbolo('A')], [Simbolo('B'), Simbolo('d')]),
+    #           Producao([Simbolo('B')], [Simbolo('A'),Simbolo('a')]), Producao([Simbolo('B')], [Simbolo('C'), Simbolo('e')]),
+    #           Producao([Simbolo('C')], [Simbolo('A')]), Producao([Simbolo('C')], [Simbolo('B')]),
+    #           Producao([Simbolo('C')], [Simbolo('f')])]
+    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
 
-#main()
-mainExemplo()
+    for terminal in terminais:
+        terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        nao_terminais_string_list.append(nao_terminal.valor)
+    
+    transformacaoGLC()
+    getAllFirst()
+    getAllFollow()
+    print("\nFirsts:")
+    print(firsts)
+    print("\nFollows:")
+    print(follows)
+    print("\nTabela:")
+    tabelaPretty = texttable.Texttable()
+    for (keyPilha,keyEntrada) in tabela:
+        tabelaPretty.add_rows([["NT na Pilha", "T na Entrada", "Saída"],[keyPilha,keyEntrada,tabela[(keyPilha,keyEntrada)]]])
+    print(tabelaPretty.draw() + '\n')
+    reconhecimentoDeEntradaPT()
+    
+main()
+#mainExemplo()
+#mainAnalisePreditivaTabular()
