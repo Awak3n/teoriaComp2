@@ -1,4 +1,4 @@
-import random as rng
+﻿import random as rng
 import copy
 import texttable
 
@@ -608,7 +608,7 @@ def derivaVazio(simbolo):
 def listaToStr(lista):
     listaStr = ''
     for l in lista:
-        listaStr += l
+        listaStr += str(l)
     return listaStr
 
 def geraGramaticaAumentada():
@@ -620,9 +620,9 @@ def geraGramaticaAumentada():
     producoes_slr.insert(0, Producao([Simbolo('Z')],[simbolo_inicial]))
 
 def numeraProducoes():
-    global producoes_slr
+    global producao
     ordem = 0
-    for producao in producoes_slr:
+    for producao in producoes:
         ordem += 1
         producao.number = ordem
 
@@ -632,12 +632,35 @@ def geraCanonicos():
         producao.saida.insert(0, Simbolo('.'))
 
 def inicializaSLR():
-    global estados, producoes_slr
+    global estados, producoes_slr, gotos
     numeraProducoes()
     geraGramaticaAumentada()
     geraCanonicos()
     kernel = [producoes_slr[0]] # kernel é SEMPRE um vetor de produçoes. Ele é inicializado com a produção criada para o SLR
-    estados.append(Estado(0,kernel,[],getClosure(kernel))) # essa linha calcula o primeiro estado, a minha linha da tabela
+    closure = getClosure(kernel)
+    gotos.extend(getGoTos(closure, 0))
+    estados.append(Estado(0, kernel, [], closure))
+    number = 1
+    ponteiro = 0
+    while len(gotos) > ponteiro:
+        kernel = getKernel(gotos[ponteiro])
+        closure = getClosure(kernel)
+        gotos.extend(getGoTos(closure, number))
+        goto_repetido = False
+        for estado in estados:
+            if str(estado.kernel) == str(kernel):
+                goto_repetido = True
+                estado.goto.append(gotos[ponteiro])
+                break
+        if not goto_repetido:
+            estados.append(Estado(number, kernel, [gotos[ponteiro]], closure))
+            number += 1
+        ponteiro += 1
+    for estado in estados:
+        print(estado.number, end=" | ")
+        print(estado.goto, end=" <- goto | ")
+        print(estado.kernel, end=" <- kernel | closure ->")
+        print(estado.closure)
 
 def getClosure(kernel): #kernel precisa ser uma lista de produções
     closure = copy.deepcopy(kernel)
@@ -661,12 +684,48 @@ def getClosureRecursivo(producao, closure):
                             if repr(c) == repr(producao_slr):
                                 ja_possui = True
                         if not ja_possui:
-                            recem_adicionados.append(producoes_slr)
+                            recem_adicionados.append(producao_slr)
                             closure.append(producao_slr)
-                for producao_add in recem_adicionados:
-                    for producao in producao_add:
-                        closure = getClosureRecursivo(producao, closure)
+                for producao in recem_adicionados:
+                    closure = getClosureRecursivo(producao, closure)
                 return closure
+
+def getGoTos(closure, number):
+    global closures
+    add = True
+    goto_list = []
+    simbolos_valor = []
+    if len(closures) > 0:
+        for c in closures:
+            if str(closure) == str(c):
+                add = False
+    if add:
+        closures.append(closure)
+        for producao in closure:
+            for s in range(len(producao.saida)):
+                if producao.saida[s].tipo == 2:
+                    if s + 1 == len(producao.saida):
+                        break
+                    else:
+                        if producao.saida[s+1].valor not in simbolos_valor:
+                            simbolos_valor.append(producao.saida[s+1].valor)
+                            goto_list.append(GoTo(producao.saida[s+1], number))
+    return goto_list
+
+def getKernel(goto):
+    kernel = []
+    for estado in estados:
+        if estado.number == goto.estado:
+            for producao in estado.closure:
+                for s in range(len(producao.saida)):
+                    if producao.saida[s].tipo == 2:
+                        if s + 1 == len(producao.saida):
+                            break
+                        if producao.saida[s + 1].valor == goto.simbolo.valor:
+                            producao_add = copy.deepcopy(producao)
+                            producao_add.saida.insert(s, producao_add.saida.pop(s+1))
+                            kernel.append(producao_add)
+    return kernel
 
 terminais_default = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','&','(',')','[',']','+','*']
 nao_terminais_default = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y']
@@ -682,6 +741,8 @@ follows = [] # Follows
 tabela = {} # Tabela de Análise PT
 tabelaSLR = {} # Tabela de Análise SLR
 estados = [] # Estados
+closures = [] # Lista de closures
+gotos = [] # Lista de GoTos
 
 class Simbolo(object):
     def __init__(self, valor=None):
@@ -765,25 +826,25 @@ def mainAnalisePreditivaTabular():
     # B => bCB | &
     # C => a
     # codificado:
-    # terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
-    # nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
-    # producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
-    #             Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
-    # simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
+    terminais = [Simbolo('a'), Simbolo('b'), Simbolo('&')]  # Lista de Simbolos terminais
+    nao_terminais = [Simbolo('A'), Simbolo('B'), Simbolo('C')]  # Lista de Simbolos nao terminais
+    producoes = [Producao([Simbolo('A')], [Simbolo('C'), Simbolo('B')]), Producao([Simbolo('B')], [Simbolo('b'), Simbolo('C'), Simbolo('B')]),
+                Producao([Simbolo('B')], [Simbolo('&')]), Producao([Simbolo('C')], [Simbolo('a')])]  # Produções
+    simbolo_inicial = Simbolo('A')  # Símbolo Inicial da Gramática
     # Gramática 2
     # E -> E + T | T
     # T -> T * F | F
     # F -> ( E ) | x
     # codificado
-    terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
-    nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
-    producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
-                 Producao([Simbolo('E')], [Simbolo('T')]),
-                 Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
-                 Producao([Simbolo('T')], [Simbolo('F')]),
-                 Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
-                 Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
-    simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
+    # terminais = [Simbolo('x'), Simbolo('+'), Simbolo('*'), Simbolo('('), Simbolo(')')]  # Lista de Simbolos terminais
+    # nao_terminais = [Simbolo('E'), Simbolo('T'), Simbolo('F')]  # Lista de Simbolos nao terminais
+    # producoes = [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T')]),
+    #              Producao([Simbolo('E')], [Simbolo('T')]),
+    #              Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F')]),
+    #              Producao([Simbolo('T')], [Simbolo('F')]),
+    #              Producao([Simbolo('F')], [Simbolo('('), Simbolo('E'), Simbolo(')')]),
+    #              Producao([Simbolo('F')], [Simbolo('x')])]  # Produções
+    # simbolo_inicial = Simbolo('E')  # Símbolo Inicial da Gramática
     # Gramática 3
     # A = Ca | Bd
     # B = Aa | Ce
@@ -804,9 +865,16 @@ def mainAnalisePreditivaTabular():
 
     transformacaoGLC()
 
-    inicializaSLR()
-    generateEstados()
+    # Atualizando a lista de strings terminais e não terminais 
+    for terminal in terminais:
+        if terminal.valor not in terminais_string_list:
+            terminais_string_list.append(terminal.valor)
+    for nao_terminal in nao_terminais:
+        if nao_terminal.valor not in nao_terminais_string_list:
+            nao_terminais_string_list.append(nao_terminal.valor)
 
+    inicializaSLR()
+    
     getAllFirst()
     getAllFollow()
     print("\nFirsts:")
@@ -815,63 +883,10 @@ def mainAnalisePreditivaTabular():
     print(follows)
     print("\nTabela:")
     buildSLRTable()
-
-def generateEstados():
-    '''Método que gera os estados para realização de testes de reconhecimento'''
-    global estados
-    # GOTO          KERNEL                  ESTADO  CLOSURE
-    # 	            {E' -> .E}	                0	{E' -> .E; E -> .E + T; E -> .T; T -> .T * F; T -> .F; F -> .( E ); F -> .id}
-    # goto(0, E)	{E' -> E.; E -> E.+ T}	    1	{E' -> E.; E -> E.+ T}
-    # goto(0, T)	{E -> T.; T -> T.* F}	    2	{E -> T.; T -> T.* F}
-    # goto(4, T)
-    # goto(0, F)	{T -> F.}	                3	{T -> F.}
-    # goto(4, F)
-    # goto(6, F)
-    # goto(0, ()	{F -> (.E )}	            4	{F -> (.E ); E -> .E + T; E -> .T; T -> .T * F; T -> .F; F -> .( E ); F -> .id}
-    # goto(4, ()
-    # goto(6, ()
-    # goto(7, ()
-    # goto(0, id)	{F -> id.}	                5	{F -> id.}
-    # goto(4, id)
-    # goto(6, id)
-    # goto(1, +)	{E -> E +.T}	            6	{E -> E +.T; T -> .T * F; T -> .F; F -> .( E ); F -> .id}
-    # goto(8, +)
-    # goto(2, *)	{T -> T *.F}	            7	{T -> T *.F; F -> .( E ); F -> .id}
-    # goto(9, *)
-    # goto(4, E)	{F -> ( E.); E -> E.+ T}	8	{F -> ( E.); E -> E.+ T}
-    # goto(6, T)	{E -> E + T.; T -> T.* F}	9	{E -> E + T.; T -> T.* F}
-    # goto(7, F)	{T -> T * F.}	            10	{T -> T * F.}
-    # goto(8, ))	{F -> ( E ).}	            11	{F -> ( E ).}
-    estados.append(Estado(1, [Producao([Simbolo('Z')], [Simbolo('E'), Simbolo('.')])], [GoTo(Simbolo('E'), 0)],[]))
-    estados.append(Estado(2, [Producao([Simbolo('E')], [Simbolo('T'), Simbolo('.')])], [GoTo(Simbolo('T'), 0),GoTo(Simbolo('T'), 4)], []))
-    estados.append(Estado(3, [Producao([Simbolo('T')], [Simbolo('F'),Simbolo('.')])], [GoTo(Simbolo('F'), 0),GoTo(Simbolo('F'), 4),GoTo(Simbolo('F'), 6)], []))
-    estados.append(Estado(4, [], [GoTo(Simbolo('('), 0),GoTo(Simbolo('('), 4),GoTo(Simbolo('('), 6),GoTo(Simbolo('('), 7)], []))
-    estados.append(Estado(5, [Producao([Simbolo('F')], [Simbolo('x'), Simbolo('.')])], [GoTo(Simbolo('x'), 0),GoTo(Simbolo('x'), 4),GoTo(Simbolo('x'), 6)], []))
-    estados.append(Estado(6, [], [GoTo(Simbolo('+'), 1),GoTo(Simbolo('+'), 8)], []))
-    estados.append(Estado(7, [], [GoTo(Simbolo('*'), 2),GoTo(Simbolo('*'), 9)], []))
-    estados.append(Estado(8, [], [GoTo(Simbolo('E'), 4)], []))
-    estados.append(Estado(9, [Producao([Simbolo('E')], [Simbolo('E'), Simbolo('+'), Simbolo('T'), Simbolo('.')])], [GoTo(Simbolo('T'), 6)], []))
-    estados.append(Estado(10, [Producao([Simbolo('T')], [Simbolo('T'), Simbolo('*'), Simbolo('F'), Simbolo('.')])], [GoTo(Simbolo('F'), 7)], []))
-    estados.append(Estado(11, [Producao([Simbolo('F')], [Simbolo('('), Simbolo('x'), Simbolo(')'), Simbolo('.')])], [GoTo(Simbolo(')'), 8)], []))
+    reconhecimentoDeEntradaSLR()
 
 def buildSLRTable():
     '''Método que constrói a tabela para reconhecimento SLR'''
-    # Firsts:
-    # [F -> [(, x], T ->[(, x], E ->[(, x], G ->[+, &], U ->[*, &]]
-    # Follows:
-    # [E ->[$,)], G -> [$, )], T -> [+, $, )], U -> [+, $, )], F -> [*, +, $, )]]
-    #cópia da tabela de estados para remoção do estado inicial
-    # 1  |  []  |  [(0,E)]  |  []
-    # 2  |  []  |  [(0,T), (4,T)]  |  []
-    # 3  |  []  |  [(0,F), (4,F), (6,F)]  |  []
-    # 4  |  []  |  [(0,(), (4,(), (6,(), (7,()]  |  []
-    # 5  |  []  |  [(0,x), (4,x), (6,x)]  |  []
-    # 6  |  []  |  [(1,+), (8,+)]  |  []
-    # 7  |  []  |  [(2,*), (9,*)]  |  []
-    # 8  |  []  |  [(4,E)]  |  []
-    # 9  |  []  |  [(6,T)]  |  []
-    # 10  |  []  |  [(7,F)]  |  []
-    # 11  |  []  |  [(8,))]  |  []
     estadosSLR = copy.deepcopy(estados)
     estadosSLR.pop(0)
     # Definição do DESVIO e funções EMPILHA / REDUZ
@@ -879,33 +894,18 @@ def buildSLRTable():
         print(estado.number, " | ", estado.kernel, " | ", estado.goto, " | ", estado.closure)
         for goto in estado.goto:
             if goto.simbolo.tipo == 1:
-                tabelaSLR[goto.simbolo, goto.estado] = ['d', estado.number] #DESVIO
+                tabelaSLR[goto.simbolo.valor, goto.estado] = ['d', estado.number] #DESVIO
             else:
-                tabelaSLR[goto.simbolo, goto.estado] = ['s', estado.number] #EMPILHA
+                tabelaSLR[goto.simbolo.valor, goto.estado] = ['s', estado.number] #EMPILHA
         for prod in estado.kernel:
-            if prod.entrada[0] in nao_terminais and prod.saida[len(prod.saida)-1].tipo == 2:
-                pass
-
-
-    # Definição da função REDUZ (REDUCE)
-    # Verificar se Kernel possui produção com item canônico no final, se sim, cria a função reduz
-    for i in range(0,len(producoes)):
-        for fof in follows:
-            print(fof.nao_terminal)
+            if prod.entrada[0].valor in nao_terminais_string_list and prod.saida[len(prod.saida)-1].tipo == 2:
+                    for fof in follows:
+                        if fof.nao_terminal.valor == prod.entrada[0].valor:
+                            for symbol in fof.valor:
+                                tabelaSLR[symbol.valor, goto.estado] = ['r',prod.number] #REDUZ
 
     for k1,k2 in tabelaSLR:
         print(k1,k2,tabelaSLR[k1,k2])
-
-    # Regras:
-    # Se tem NT na pilha, verifica se tem correspondência na tabela e:
-    #   DESVIO
-    # Se tem int na pilha, verfica se tem correspondência na tabela e:
-    #   SE possui SÍMBOLO_INICIAL na entrada:
-    #       ACEITA
-    #   SENAO
-    #       EMPILHA (sN)
-    #       OU
-    #       REDUZ   (rN)
 
 def reconhecimentoDeEntradaSLR():
     '''Realiza o reconhecimento de uma entrada em SLR'''
@@ -917,58 +917,50 @@ def reconhecimentoDeEntradaSLR():
 
     entrada.append("$")
     entrada.reverse()  # revertendo para poder tratar como uma pilha
-    pilha = ["$", simbolo_inicial.valor]
+    pilha = [0]
     saida = ""
     table = texttable.Texttable()
     table.add_rows([["Pilha", "Entrada", "Saída"], [listaToStr(pilha), listaToStr(entrada)[::-1], saida]])
     # loop principal de reconhecimento
-    while pilha[len(pilha) - 1] != "1" or entrada[len(entrada) - 1] != "$":
-        topoP = len(pilha) - 1
-        topoE = len(entrada) - 1
-        # Regras:
+    # Regras:
         # Se tem NT na pilha, verifica se tem correspondência na tabela e:
         #   DESVIO
         # Se tem int na pilha, verfica se tem correspondência na tabela e:
-        #   SE possui SÍMBOLO_INICIAL na entrada:
-        #       ACEITA
-        #   SENAO
-        #       EMPILHA (sN)
-        #       OU
-        #       REDUZ   (rN)
-
-        #TODO: remove essa porra toda e trocar a lógica
-        # Regras:
-        # Se tem NT na pilha, verifica na tabela se reconhece
-        # e substituiu na pilha o NT pelo lado direito (pop NT e push lado direito)
+        #   EMPILHA (sN)
+        #   OU
+        #   REDUZ   (rN)
+    while pilha[len(pilha) - 1] != "1" or entrada[len(entrada) - 1] != "$":
         topoP = len(pilha) - 1
         topoE = len(entrada) - 1
-        if (pilha[topoP] in nao_terminais_default):
-            if (pilha[topoP], entrada[topoE]) in tabela:
-                saida = tabela[(pilha[topoP], entrada[topoE])]  # producao
-                direito = copy.deepcopy(saida.saida)
-                pilha.pop()
-                if (direito[0].valor != "&"):
-                    direito.reverse()
-                    for elem in direito:
-                        pilha.append(elem.valor)
-            else:
-                print(table.draw())
-                print("Erro: Entrada não reconhecida.")
-                return
-        elif (pilha[topoP] in terminais_default):
-            # Se tem T na pilha e o mesmo T na entrada, elimina ambos (reconhece)
-            if (pilha[topoP] == entrada[topoE]):
-                saida = ''
-                pilha.pop()
-                entrada.pop()
+        if(pilha[topoP] in nao_terminais_string_list):
+            if (entrada[topoP], pilha[topoP-1]) in tabelaSLR:
+                # tabelaSLR[goto.simbolo, goto.estado] = ['d', estado.number] #DESVIO
+                saida = "DESVIO(" + str(tabelaSLR[pilha[topoP],pilha[topoP-1]][1]) + ")"
+                pilha.append(tabelaSLR[pilha[topoP-1],pilha[topoP]][1])
             else:
                 print(table.draw())
                 print("Erro: Entrada não reconhecida.")
                 return
         else:
-            print(table.draw())
-            print("Erro: Entrada não reconhecida.")
-            return
+            if (entrada[topoE], pilha[topoP]) in tabelaSLR:
+                op = tabelaSLR[entrada[topoE],pilha[topoP]][0] 
+                estado = tabelaSLR[entrada[topoE],pilha[topoP]][1]
+                saida = op + str(estado)
+                if op == 's':  
+                    # tabelaSLR[goto.simbolo, goto.estado] = ['s', estado.number] #EMPILHA
+                    saida = "EMPILHA(" + saida + ")"
+                    pilha.append(entrada[topoE])
+                    entrada.pop()
+                    pilha.append(estado)
+                else:
+                    # tabelaSLR[symbol, goto.estado] = ['r',prod.number] #REDUZ
+                    saida = "REDUZ(" + saida + ")"
+                    for i in range((len(producoes[estado].saida)-1)*2):
+                        pilha.pop()
+            else:
+                print(table.draw())
+                print("Erro: Entrada não reconhecida.")
+                return
         table.add_rows([["Pilha", "Entrada", "Saída"], [listaToStr(pilha), listaToStr(entrada)[::-1], saida]])
     print('\n' + table.draw() + '\n')
 
