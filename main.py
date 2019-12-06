@@ -658,7 +658,7 @@ def inicializaSLR():
         ponteiro += 1
     for estado in estados:
         print(estado.number, end=" | ")
-        print(estado.goto, end=" <- goto| ")
+        print(estado.goto, end=" <- goto | ")
         print(estado.kernel, end=" <- kernel | closure ->")
         print(estado.closure)
 
@@ -684,11 +684,10 @@ def getClosureRecursivo(producao, closure):
                             if repr(c) == repr(producao_slr):
                                 ja_possui = True
                         if not ja_possui:
-                            recem_adicionados.append(producoes_slr)
+                            recem_adicionados.append(producao_slr)
                             closure.append(producao_slr)
-                for producao_add in recem_adicionados:
-                    for producao in producao_add:
-                        closure = getClosureRecursivo(producao, closure)
+                for producao in recem_adicionados:
+                    closure = getClosureRecursivo(producao, closure)
                 return closure
 
 def getGoTos(closure, number):

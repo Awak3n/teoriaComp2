@@ -179,8 +179,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
-          <line>650</line>
-          <option name="timeStamp" value="4" />
+          <line>646</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>686</line>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -195,6 +200,7 @@
       <configuration name="PythonConfigurationType">
         <watch expression="producoes" language="Python" />
         <watch expression="firsts" language="Python" />
+        <watch expression="gotos[ponteiro]" language="Python" />
       </configuration>
     </watches-manager>
   </component>
